@@ -32,6 +32,7 @@ int main(int argc, char** argv) {
       { "activity-log", required_argument, 0, 'a' },
       { "device",  required_argument, 0, 'd'},
       { "events",  required_argument, 0, 'e'},
+      { "properties",  required_argument, 0, 'p'},
       { 0, 0, 0, 0 }
     };
 
@@ -62,6 +63,12 @@ int main(int argc, char** argv) {
     // events
     case 'e':
       SafeOpen(events, optarg);
+      break;
+    // properties
+    case 'p':
+      if(!config.properties.Load(optarg)) {
+        std::cerr << "Unable to load properties file " << optarg << std::endl;
+      }
       break;
     case '?':
       return -1;

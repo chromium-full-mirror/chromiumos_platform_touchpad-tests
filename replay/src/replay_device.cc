@@ -28,8 +28,8 @@ ReplayDevice::ReplayDevice(ReplayDeviceConfig* config)
 
   // create libevdev mock
   evdev_device_ = NewEvdevMock(id_);
-
   interpreter_ = replay::NewGestureInterpreterMock(id_);
+  interpreter_->SetPropProvider(&CPropProvider, &config_->properties);
   evdev_gesture_ = new EvdevGesture(evdev_device_, interpreter_);
 
   // init fake device hardware properties

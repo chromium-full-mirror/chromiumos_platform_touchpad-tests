@@ -15,6 +15,7 @@
 #include <evemu_device.h>
 #include <generic_stream.h>
 #include <libevdev_mock.h>
+#include <prop_provider.h>
 
 namespace replay {
 
@@ -37,6 +38,8 @@ struct ReplayDeviceConfig {
   // Array containing all streams for log files
   GenericOStream log[ReplayDeviceConfig::kLogCategoryCount];
 
+  // Property provider to load properties for the gestures library
+  PropProvider properties;
   // stream to the device data file
   GenericIStream device;
 };
