@@ -1,0 +1,42 @@
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+include common.mk
+
+# discover base library
+PKG_CONFIG ?= pkg-config
+BASE_VER ?= 125070
+PC_DEPS += libchrome-$(BASE_VER)
+PC_CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PC_DEPS))
+PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
+
+# global flags
+CPPFLAGS += -I$(SRC)/include -fvisibility=default $(PC_CFLAGS)
+LDFLAGS += -levdev_hollow -lutouch-evemu -lglib-2.0 $(PC_LIBS)
+
+common_OBJS = src/evemu_device.o \
+	src/generic_stream.o \
+	src/libevdev_mock.o \
+	src/replay_device.o
+
+# replay tool
+replay_OBJS = src/main.o \
+	$(common_OBJS)
+
+CXX_BINARY(replay): $(replay_OBJS)
+CXX_BINARY(replay): LDLIBS += $(replay_LIBS)
+CXX_BINARY(replay): CPPFLAGS += $(replay_FLAGS)
+clean: CLEAN(replay)
+
+# unit tests
+tests_LIBS = -lgtest
+tests_OBJS = src/test_main.o \
+	src/evemu_device_tests.o \
+	$(common_OBJS)
+
+CXX_BINARY(tests): $(tests_OBJS)
+CXX_BINARY(tests): LDLIBS += $(tests_LIBS)
+CXX_BINARY(tests): CPPFLAGS += $(tests_FLAGS)
+clean: CLEAN(tests)
+tests: TEST(CXX_BINARY(tests))
