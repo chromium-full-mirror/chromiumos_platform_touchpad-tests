@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <iostream>
 
+#include <gestures_mock.h>
 #include <libevdev_mock.h>
 
 namespace replay {
@@ -14,7 +15,10 @@ namespace replay {
 std::vector<ReplayDevice*> ReplayDevice::devices_;
 
 ReplayDevice::ReplayDevice(ReplayDeviceConfig* config)
-    : config_(config), evemu_device_(NULL), current_state_(NULL) {
+    : config_(config), evemu_device_(NULL), evdev_gesture_(NULL),
+      interpreter_(NULL), current_state_(NULL), current_time_(0),
+      timer_target_time_(0), timer_callback_(NULL),
+      timer_callback_udata_(NULL) {
   id_ = devices_.size();
   devices_.push_back(this);
 
@@ -24,6 +28,14 @@ ReplayDevice::ReplayDevice(ReplayDeviceConfig* config)
 
   // create libevdev mock
   evdev_device_ = NewEvdevMock(id_);
+
+  interpreter_ = replay::NewGestureInterpreterMock(id_);
+  evdev_gesture_ = new EvdevGesture(evdev_device_, interpreter_);
+
+  // init fake device hardware properties
+  struct HardwareProperties hwprops;
+  evdev_gesture_->InitHardwareProperties(&hwprops);
+  interpreter_->SetHardwareProperties(hwprops);
 }
 
 ReplayDevice::~ReplayDevice() {
@@ -35,6 +47,17 @@ void ReplayDevice::ReplayEvents(GenericIStream* stream) {
   while (evemu_device_->ReadEvent(stream->GetStream(), &event) > 0) {
     ReplayEvent(event);
   }
+
+  // handle remaining timers.
+  while (timer_callback_) {
+    current_time_ = timer_target_time_;
+    GesturesTimerCallback callback = timer_callback_;
+    timer_callback_ = NULL;
+
+    // the callback might re-set timer_callback
+    callback(timer_target_time_, timer_callback_udata_);
+  }
+  Log(ReplayDeviceConfig::kLogActivity, interpreter_->EncodeActivityLog());
 }
 
 void ReplayDevice::ReplayEvent(const struct input_event& event) {
@@ -61,6 +84,65 @@ void ReplayDevice::LogAll(ReplayDeviceConfig::LogCategory category,
 }
 
 void ReplayDevice::SynCallback(EventStatePtr evstate, struct timeval* timeval) {
+  current_state_ = evstate;
+  current_time_ = StimeFromTimeval(timeval);
+  if (timer_callback_ && current_time_ > timer_target_time_) {
+    GesturesTimerCallback callback = timer_callback_;
+    timer_callback_ = NULL;
+
+    callback(timer_target_time_, timer_callback_udata_);
+  }
+  evdev_gesture_->PushEventState(evstate, timeval);
+}
+
+void ReplayDevice::GestureCallback(const struct Gesture* gesture) {
+  if (config_->log[ReplayDeviceConfig::kLogGestures].Good()) {
+
+    std::ostream& stream = *(config_->log[ReplayDeviceConfig::kLogGestures]
+                             .GetStream());
+
+    stream << "----------------------------------------"
+              "----------------------------------------" << std::endl;
+    stream << std::setiosflags(std::ios::fixed) << std::setprecision(6)
+           << current_time_ << " - ";
+    switch (gesture->type) {
+    case kGestureTypeContactInitiated:
+      stream << "Contact Initiated" << std::endl;
+      break;
+    case kGestureTypeMove:
+      stream << "Move (" << static_cast<int>(gesture->details.move.dx) << ", "
+             << static_cast<int>(gesture->details.move.dy) << ")";
+      break;
+    case kGestureTypeScroll:
+      stream << "Scroll (" << static_cast<int>(gesture->details.scroll.dx)
+             << ", " << static_cast<int>(gesture->details.scroll.dy) << ")";
+      break;
+    case kGestureTypeButtonsChange:
+      stream << "Buttons Change up=" << gesture->details.buttons.up << ", down="
+             << gesture->details.buttons.up;
+      break;
+    case kGestureTypeFling:
+      stream << "Fling state=" << gesture->details.fling.fling_state << " ("
+             << gesture->details.fling.vx << ", " << gesture->details.fling.vy
+             << ")";
+      break;
+    case kGestureTypeSwipe:
+      stream << "Swipe dx=" << gesture->details.swipe.dx;
+      break;
+    case kGestureTypePinch:
+      stream << "Pinch dz=" << gesture->details.pinch.dz;
+      break;
+    }
+    stream << std::endl;
+    stream << "----------------------------------------"
+              "----------------------------------------" << std::endl;
+  }
+}
+void ReplayDevice::SetFakeTimer(stime_t time, GesturesTimerCallback callback,
+                                void* callback_udata) {
+  timer_target_time_ = current_time_ + time;
+  timer_callback_ = callback;
+  timer_callback_udata_ = callback_udata;
 }
 
 ReplayDevice* ReplayDevice::GetDevice(size_t id) {

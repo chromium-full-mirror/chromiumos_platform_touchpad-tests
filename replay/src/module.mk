@@ -13,12 +13,14 @@ PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
 
 # global flags
 CPPFLAGS += -I$(SRC)/include -fvisibility=default $(PC_CFLAGS)
-LDFLAGS += -levdev_hollow -lutouch-evemu -lglib-2.0 $(PC_LIBS)
+LDFLAGS += -levdev_hollow -lutouch-evemu -lgestures -lglib-2.0 $(PC_LIBS)
 
-common_OBJS = src/evemu_device.o \
+common_OBJS = src/evdev_gestures.o \
+	src/evemu_device.o \
 	src/generic_stream.o \
+	src/gestures_mock.o \
 	src/libevdev_mock.o \
-	src/replay_device.o
+	src/replay_device.o \
 
 # replay tool
 replay_OBJS = src/main.o \

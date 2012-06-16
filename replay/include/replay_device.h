@@ -11,6 +11,7 @@
 #include <base/basictypes.h>
 #include <gestures/gestures.h>
 
+#include <evdev_gestures.h>
 #include <evemu_device.h>
 #include <generic_stream.h>
 #include <libevdev_mock.h>
@@ -61,6 +62,11 @@ class ReplayDevice {
   // Replay a single input event.
   void ReplayEvent(const struct input_event& event);
 
+  // Access to the current timestamp of libevdev.
+  double GetCurrentTime() {
+    return current_time_;
+  }
+
   // Log a message to specified category. Used by mocks for logging.
   void Log(ReplayDeviceConfig::LogCategory category,
            const std::string& message);
@@ -73,6 +79,14 @@ class ReplayDevice {
 
   // This method is to be called by libevdev when a syn event is processed.
   void SynCallback(EventStatePtr, struct timeval*);
+
+  // This method is called by the gestures library when a new gesture is ready.
+  void GestureCallback(const struct Gesture*);
+
+  // This method is used by the gestures library to set timers. The replay
+  // device will make sure that the callback is invoked at an appropriate time.
+  void SetFakeTimer(stime_t time, GesturesTimerCallback callback,
+                    void* callback_udata);
 
   // Static method to access a device of a specific ID.
   static ReplayDevice* GetDevice(size_t id);
@@ -103,9 +117,17 @@ class ReplayDevice {
 
   // Instances to the actual multitouch stack
   Evdev_* evdev_device_;
-
+  EvdevGesture* evdev_gesture_;
+  GestureInterpreter* interpreter_;
   // The current state of the multitouch stack
   EventStatePtr current_state_;
+  stime_t current_time_;
+
+  // Variables to track a timer and it:s callback.
+  stime_t timer_target_time_;
+  GesturesTimerCallback timer_callback_;
+  void* timer_callback_udata_;
+
 
   // Array containing all instances of ReplayDevice.
   static std::vector<ReplayDevice*> devices_;
