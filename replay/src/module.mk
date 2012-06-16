@@ -22,6 +22,7 @@ common_OBJS = src/evdev_gestures.o \
 	src/libevdev_mock.o \
 	src/prop_provider.o \
 	src/replay_device.o \
+	src/trimmer.o
 
 # replay tool
 replay_OBJS = src/main.o \
@@ -37,6 +38,8 @@ tests_LIBS = -lgtest
 tests_OBJS = src/test_main.o \
 	src/evemu_device_tests.o \
 	src/prop_provider_tests.o \
+	src/trimmer_tests.o \
+	src/trimmer_tests_data.o \
 	$(common_OBJS)
 
 CXX_BINARY(tests): $(tests_OBJS)
