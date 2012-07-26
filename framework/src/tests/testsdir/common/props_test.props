@@ -1,0 +1,10 @@
+{
+	"gestures": {
+		"b": "common",
+		"c": "common"
+	},
+	"validator": {
+		"b": "common",
+		"c": "common"
+	}
+}

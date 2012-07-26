@@ -1,0 +1,12 @@
+{
+	"gestures": {
+		"a": "platform",
+		"b": "platform",
+		"c": "platform"
+	},
+	"validator": {
+		"a": "platform",
+		"b": "platform",
+		"c": "platform"
+	}
+}
