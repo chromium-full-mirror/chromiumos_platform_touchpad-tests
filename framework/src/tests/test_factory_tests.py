@@ -6,6 +6,7 @@
 from os import path
 from test_factory import TestFactory
 from test_runner import TestRunner
+import json
 import os
 import unittest
 
@@ -36,6 +37,33 @@ class TestFactoryTests(unittest.TestCase):
     testcase = factory.CreateTest("platform_a/added_test_case", activity_file,
                                   cmt_file)
     testcase.Check()
+
+  def test_new_case_replay_timestamps(self):
+    # create test
+    factory = TestFactory(tests_path, replay_tool)
+    testcase = factory.CreateTest("platform_a/added_test_case", activity_file,
+                                  cmt_file)
+
+    # replay new test
+    result = TestRunner(tests_path, replay_tool).RunTest(testcase)
+    self.assertNotEqual(result["result"], "error")
+
+    # load hardware states from original log
+    original = json.load(open(activity_file, "r"))
+    original_states = filter(lambda e: e["type"] == "hardwareState",
+                             original["entries"])
+
+    # load hardware states from replayed log
+    replay = json.loads(result["logs"]["activity"])
+    replay_states = filter(lambda e: e["type"] == "hardwareState",
+                           replay["entries"])
+
+    # check if first and last timestamp match. i.e. check if the file was
+    # correctly trimmed.
+    self.assertAlmostEqual(original_states[0]["timestamp"],
+                           replay_states[0]["timestamp"])
+    self.assertAlmostEqual(original_states[-1]["timestamp"],
+                           replay_states[-1]["timestamp"])
 
   def tearDown(self):
     files = [path.join(tests_path, "platform_a/added_test_case.log"),
