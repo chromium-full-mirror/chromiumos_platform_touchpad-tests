@@ -6,6 +6,7 @@
 # of parsing the command line arguments and formating the output
 from os import path
 from test_case import TestCase
+from test_factory import TestFactory
 from test_runner import TestRunner
 import os
 import pprint
@@ -111,8 +112,12 @@ def Add(platform, activity_log, event_log):
   # determine test name from activity_log name
   testname = path.splitext(path.basename(activity_log))[0]
   testname = path.join(platform, testname)
-  case = TestCase.add_test_case(testname, activity_log, event_log)
-  case.run(True)
+  factory = TestFactory(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  case = factory.CreateTest(testname, activity_log, event_log)
+
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  result = runner.RunTest(case)
+  print result["gestures"]
 
 
 def Main():

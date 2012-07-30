@@ -6,5 +6,6 @@ include common.mk
 
 all: CXX_BINARY(replay)
 clean: CLEAN(replay)
-install:
 tests: CXX_BINARY(tests)
+install:
+	install -D -m 0755 $(OUT)/replay $(DESTDIR)/replay
