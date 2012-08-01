@@ -15,3 +15,5 @@ install:
 	install -D -m 0755 src/test_case.py    $(DESTDIR)/framework/test_case.py
 	install -D -m 0755 src/test_factory.py $(DESTDIR)/framework/test_factory.py
 	install -D -m 0755 src/test_runner.py  $(DESTDIR)/framework/test_runner.py
+	install -D -m 0755 src/test_verifier.py \
+	                   $(DESTDIR)/framework/test_verifier.py

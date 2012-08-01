@@ -25,7 +25,9 @@ class TestFactory(object):
   the activity logs time range.
   """
 
-  user_property_names = []
+  user_property_names = [
+    "Tap Enable"
+  ]
 
   def __init__(self, tests_dir, replay_tool):
     self.tests_dir = tests_dir

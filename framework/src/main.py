@@ -8,6 +8,8 @@ from os import path
 from test_case import TestCase
 from test_factory import TestFactory
 from test_runner import TestRunner
+from test_verifier import TestVerifier
+import json
 import os
 import pprint
 import sys
@@ -66,6 +68,17 @@ def HelpExit():
   print _help_text
   exit()
 
+def Verify(device, glob):
+  verifier = TestVerifier(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
+                          device)
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  cases = runner.DiscoverTestCases(glob)
+
+  for case in cases:
+    print "###", case.name
+    report = verifier.Verify(case)
+    print report
+
 
 def Log(glob, debug=False):
   """
@@ -119,7 +132,6 @@ def Add(platform, activity_log, event_log):
   result = runner.RunTest(case)
   print result["gestures"]
 
-
 def Main():
   """
   Main entry point for the console interface
@@ -155,6 +167,13 @@ def Main():
       HelpExit()
     test_name = sys.argv[2]
     Log(test_name)
+
+  elif cmd == "verify":
+    if len(sys.argv) < 4:
+      HelpExit()
+    device_name = sys.argv[2]
+    test_name = sys.argv[3]
+    Verify(device_name, test_name)
 
   elif cmd == "add":
     if len(sys.argv) < 5:

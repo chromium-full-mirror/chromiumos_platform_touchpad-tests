@@ -11,6 +11,7 @@ from gesture_log_tests import GestureLogTests
 from test_case_tests import TestCaseTests
 from test_factory_tests import TestFactoryTests
 from test_runner_tests import TestRunnerTests
+from test_verifier_tests import TestVerifierTests
 import unittest
 
 if __name__ == '__main__':
