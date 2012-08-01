@@ -5,17 +5,9 @@
 #include <trimmer.h>
 
 #include <evemu_device.h>
+#include <util.h>
 
 namespace replay {
-
-// Helper for bit operations
-#define LONG_BITS (sizeof(long) * 8)
-#define NLONGS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
-
-// Test for bit in an ulong array
-static inline bool TestBit(int bit, unsigned long* array) {
-  return !!(array[bit / LONG_BITS] & (1L << (bit % LONG_BITS)));
-}
 
 Trimmer::Trimmer(ReplayDevice* replay)
     : replay_(replay) {

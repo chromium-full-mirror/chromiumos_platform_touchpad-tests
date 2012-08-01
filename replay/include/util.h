@@ -26,6 +26,15 @@ T lexical_cast(U in) {
   return out;
 }
 
+// Helper for bit operations
+#define LONG_BITS (sizeof(long) * 8)
+#define NLONGS(x) (((x) + LONG_BITS - 1) / LONG_BITS)
+
+// Test for bit in an ulong array
+static inline bool TestBit(int bit, unsigned long* array) {
+  return !!(array[bit / LONG_BITS] & (1L << (bit % LONG_BITS)));
+}
+
 }  // namespace replay
 
 #endif  // UTIL_H_

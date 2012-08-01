@@ -6,10 +6,12 @@
 
 #include <libevdev_mock.h>
 #include <replay_device.h>
+#include <util.h>
 
+using evemu::EvemuDevice;
 using replay::ReplayDevice;
 using replay::ReplayDeviceConfig;
-using evemu::EvemuDevice;
+using replay::TestBit;
 
 extern "C" {
 
@@ -70,6 +72,13 @@ int EvdevProbe(EvdevPtr device) {
 // Only used during resync. Not supported by this mock.
 int EvdevProbeAbsinfo(EvdevPtr device, size_t key) {
   return Success;
+}
+
+int EvdevIsSinglePressureDevice(EvdevPtr device) {
+    EvdevInfoPtr info = &device->info;
+
+    return (!TestBit(ABS_MT_PRESSURE, info->bitmask) &&
+            TestBit(ABS_PRESSURE, info->bitmask));
 }
 
 // This method usually queries the kernel for the current MTSlot state.
