@@ -128,17 +128,19 @@ class TrimmerTests : public ::testing::Test {
       // only check if one of the devices treats this slot as tracked.
       if (slot_original->tracking_id >= 0 || slot_trimmed->tracking_id >= 0) {
         EXPECT_EQ(slot_original->tracking_id, slot_trimmed->tracking_id);
-        EXPECT_EQ(slot_original->touch_major, slot_trimmed->touch_major);
-        EXPECT_EQ(slot_original->touch_minor, slot_trimmed->touch_minor);
-        EXPECT_EQ(slot_original->width_major, slot_trimmed->width_major);
-        EXPECT_EQ(slot_original->width_minor, slot_trimmed->width_minor);
-        EXPECT_EQ(slot_original->orientation, slot_trimmed->orientation);
-        EXPECT_EQ(slot_original->position_x,  slot_trimmed->position_x );
-        EXPECT_EQ(slot_original->position_y,  slot_trimmed->position_y );
-        EXPECT_EQ(slot_original->tool_type,   slot_trimmed->tool_type  );
-        EXPECT_EQ(slot_original->blob_id,     slot_trimmed->blob_id    );
-        EXPECT_EQ(slot_original->pressure,    slot_trimmed->pressure   );
-        EXPECT_EQ(slot_original->distance,    slot_trimmed->distance   );
+        if (slot_original->tracking_id >= 0 && slot_trimmed->tracking_id >= 0) {
+          EXPECT_EQ(slot_original->touch_major, slot_trimmed->touch_major);
+          EXPECT_EQ(slot_original->touch_minor, slot_trimmed->touch_minor);
+          EXPECT_EQ(slot_original->width_major, slot_trimmed->width_major);
+          EXPECT_EQ(slot_original->width_minor, slot_trimmed->width_minor);
+          EXPECT_EQ(slot_original->orientation, slot_trimmed->orientation);
+          EXPECT_EQ(slot_original->position_x,  slot_trimmed->position_x );
+          EXPECT_EQ(slot_original->position_y,  slot_trimmed->position_y );
+          EXPECT_EQ(slot_original->tool_type,   slot_trimmed->tool_type  );
+          EXPECT_EQ(slot_original->blob_id,     slot_trimmed->blob_id    );
+          EXPECT_EQ(slot_original->pressure,    slot_trimmed->pressure   );
+          EXPECT_EQ(slot_original->distance,    slot_trimmed->distance   );
+        }
       }
     }
 
@@ -148,7 +150,16 @@ class TrimmerTests : public ::testing::Test {
                 device_original->evdev_device()->key_state_bitmask[i]);
     }
   }
+  // Checks if the replay left the device clean
+  void ExpectClean() {
+    EventStatePtr state_trimmed = replay_trimmed_->current_state();
 
+    // check if all fingers are removed
+    for (int i = 0; i < state_trimmed->slot_count; i++) {
+      MtSlotPtr slot_trimmed = &state_trimmed->slots[i];
+      EXPECT_EQ(slot_trimmed->tracking_id, -1);
+    }
+  }
   // Replay both devices and check the event state at each SYN event.
   void ExpectEqualReplay() {
     ExpectEqualState(replay_trimmed_, replay_original_);
@@ -213,12 +224,14 @@ TEST_F(TrimmerTests, TestNoTrimming) {
   double inf = std::numeric_limits<double>::infinity();
   TrimEvents(-inf, inf);
   ExpectNoTrimming();
+  ExpectClean();
 }
 
 TEST_F(TrimmerTests, TestFirstLastSynTrimming) {
   // first and last SYN timestamp
   TrimEvents(37716.042789, 38257.473632);
   ExpectNoTrimming();
+  ExpectClean();
 }
 
 TEST_F(TrimmerTests, TestTrimWhileFingersTouching) {
@@ -226,6 +239,7 @@ TEST_F(TrimmerTests, TestTrimWhileFingersTouching) {
   // end: after 3 finger up/down movement
   TrimEvents(38242.311957, 38244.058656);
   ExpectTrimmedReplayIsEqual();
+  ExpectClean();
 }
 
 TEST_F(TrimmerTests, TestTrimWhileButtonPressed) {
@@ -233,6 +247,7 @@ TEST_F(TrimmerTests, TestTrimWhileButtonPressed) {
   // end: after 3 finger up/down movement. With button still pressed.
   TrimEvents(38242.209067, 38253.411325);
   ExpectTrimmedReplayIsEqual();
+  ExpectClean();
 }
 
 }  // namespace replay

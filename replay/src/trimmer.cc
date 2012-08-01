@@ -24,10 +24,14 @@ void Trimmer::WriteCurrentState(GenericOStream* out, struct input_event* syn) {
   Evdev* device = replay_->evdev_device();
 
   // write slots
-  for (int i = 0; i < evstate->slot_count; i++) {
-    MtSlotPtr slot = &evstate->slots[i];
-    if (slot->tracking_id == -1)
+  for (int i = evstate->slot_min; i < evstate->slot_min + evstate->slot_count;
+       i++) {
+    MtSlotPtr slot = &evstate->slots[i - evstate->slot_min];
+    if (slot->tracking_id == -1) {
+      WriteEvent(out, syn->time, EV_ABS, ABS_MT_SLOT, i);
+      WriteEvent(out, syn->time, EV_ABS, ABS_MT_TRACKING_ID, -1);
       continue;
+    }
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_SLOT, i);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_TOUCH_MAJOR, slot->touch_major);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_TOUCH_MINOR, slot->touch_minor);
@@ -41,6 +45,16 @@ void Trimmer::WriteCurrentState(GenericOStream* out, struct input_event* syn) {
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_TRACKING_ID, slot->tracking_id);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_PRESSURE, slot->pressure);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_DISTANCE, slot->distance);
+  }
+
+  // activate the currently active slot
+  for (int i = evstate->slot_min; i < evstate->slot_min + evstate->slot_count;
+       i++) {
+    MtSlotPtr slot = &evstate->slots[i - evstate->slot_min];
+    if (slot == evstate->slot_current) {
+      WriteEvent(out, syn->time, EV_ABS, ABS_MT_SLOT, i);
+      break;
+    }
   }
 
   // write key state
@@ -75,7 +89,7 @@ bool Trimmer::Trim(GenericIStream* in, GenericOStream* out, double from,
           continue;
         }
       } else if (timestamp >= to) {
-        // we have reached the to timestamp. we are done here.
+        // we have reached the 'to' timestamp
         evemu::EvemuDevice::WriteEvent(out->GetStream(), event);
         break;
       }
@@ -89,6 +103,15 @@ bool Trimmer::Trim(GenericIStream* in, GenericOStream* out, double from,
       evemu::EvemuDevice::WriteEvent(out->GetStream(), event);
     }
   }
+
+  // 0.5 seconds after replay: Add cleanup state
+  EventStatePtr evstate = replay_->current_state();
+  event.time.tv_usec += 500;
+  for (int i = 0; i < evstate->slot_count; i++) {
+    WriteEvent(out, event.time, EV_ABS, ABS_MT_SLOT, i);
+    WriteEvent(out, event.time, EV_ABS, ABS_MT_TRACKING_ID, -1);
+  }
+
   return true;
 }
 
