@@ -87,6 +87,7 @@ class Replay(object):
     if properties:
       properties_file = NamedTemporaryFile("w", delete=True)
       properties_file.write(properties)
+      properties_file.flush()
       parameters.extend(["--properties", properties_file.name])
 
     if trim_out:

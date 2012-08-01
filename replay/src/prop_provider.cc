@@ -156,12 +156,8 @@ GesturesProp* PropProvider::GetPropSafe(const std::string& name) {
   return prop;
 }
 
-bool PropProvider::Load(const std::string& filename) {
-  GenericStream<std::istream> stream(filename);
-  if(!stream.Good())
-    return false;
-
-  std::string data((std::istreambuf_iterator<char>(*stream.GetStream())),
+bool PropProvider::Load(GenericIStream* stream) {
+  std::string data((std::istreambuf_iterator<char>(*stream->GetStream())),
                    std::istreambuf_iterator<char>());
   return LoadString(data);
 }

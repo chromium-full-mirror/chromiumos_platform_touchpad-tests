@@ -29,8 +29,16 @@ ReplayDevice::ReplayDevice(ReplayDeviceConfig* config)
   // create libevdev mock
   evdev_device_ = NewEvdevMock(id_);
   interpreter_ = replay::NewGestureInterpreterMock(id_);
-  interpreter_->SetPropProvider(&CPropProvider, &config_->properties);
+  interpreter_->SetPropProvider(&CPropProvider, &properties_);
   evdev_gesture_ = new EvdevGesture(evdev_device_, interpreter_);
+
+  // load properties from properties file
+  if (config->properties.Good()) {
+    if (!properties_.Load(&config->properties)) {
+      std::cerr << "Failed loading properties file" << std::endl;
+      exit(-1);
+    }
+  }
 
   // init fake device hardware properties
   struct HardwareProperties hwprops;

@@ -11,6 +11,8 @@
 #include <base/basictypes.h>
 #include <gestures/gestures.h>
 
+#include <generic_stream.h>
+
 // Declared by gestures library. Implemented here.
 // This structure declares virtual overloaded get/set methods to access the
 // property value and convert it to different data types.
@@ -44,7 +46,7 @@ class PropProvider {
 
   // Load properties from a JSON file.
   // See LoadString.
-  bool Load(const std::string& filename);
+  bool Load(GenericIStream* stream);
 
   // Load properties from a JSON string.
   // The object has to consist of a dictionary with numerical or string

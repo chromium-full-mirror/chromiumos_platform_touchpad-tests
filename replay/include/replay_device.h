@@ -38,8 +38,9 @@ struct ReplayDeviceConfig {
   // Array containing all streams for log files
   GenericOStream log[ReplayDeviceConfig::kLogCategoryCount];
 
-  // Property provider to load properties for the gestures library
-  PropProvider properties;
+  // Stream to be used for reading properties
+  GenericIStream properties;
+
   // stream to the device data file
   GenericIStream device;
 };
@@ -111,6 +112,9 @@ class ReplayDevice {
 
   // Reference to the configuration for accessing the streams.
   ReplayDeviceConfig* config_;
+
+  // Property provider to load properties for the gestures library
+  PropProvider properties_;
 
   // The id of this device, as used by GetDevice.
   int id_;

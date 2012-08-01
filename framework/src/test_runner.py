@@ -4,13 +4,15 @@
 #
 # This module provides the test runner which is responsible for discovering
 # and executing tests.
+import fnmatch
+import json
+import os
+import traceback
+
 from gesture_log import GestureLog
 from os import path
 from replay import Replay
 from test_case import TestCase
-import fnmatch
-import os
-import traceback
 
 class TestRunner(object):
   """
@@ -62,8 +64,9 @@ class TestRunner(object):
       return out
 
     try:
+      properties = json.dumps(test_case.gesture_props)
       replay = Replay(test_case.platform_dat_file, self.replay_tool)
-      log = GestureLog(replay.Replay(test_case.log_file, test_case.properties))
+      log = GestureLog(replay.Replay(test_case.log_file, properties))
       score = test_case.module.Validate(log.raw, log.events, log.gestures)
 
       out["logs"]["evdev"] = replay.evdev_log

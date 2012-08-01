@@ -75,9 +75,7 @@ int main(int argc, char** argv) {
       break;
     // properties
     case 'p':
-      if(!config.properties.Load(optarg)) {
-        std::cerr << "Unable to load properties file " << optarg << std::endl;
-      }
+      SafeOpen(config.properties, optarg);
       break;
     // trim-from
     case 'b':
