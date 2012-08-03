@@ -66,6 +66,14 @@ int EvdevProbe(EvdevPtr device) {
     memcpy(&device->info.absinfo[i], &evemu->GetAbsinfo(i),
            sizeof(device->info.absinfo[i]));
   }
+  if (device->info.absinfo[ABS_X].resolution <= 0 ||
+      device->info.absinfo[ABS_Y].resolution <= 0 ||
+      device->info.absinfo[ABS_MT_POSITION_X].resolution <= 0 ||
+      device->info.absinfo[ABS_MT_POSITION_Y].resolution <= 0) {
+    std::cerr << "Missing resolution field in device file" << std::endl;
+    exit(1);
+  }
+
   return Success;
 }
 
@@ -84,8 +92,12 @@ int EvdevIsSinglePressureDevice(EvdevPtr device) {
 // This method usually queries the kernel for the current MTSlot state.
 // We fake this by returning 'no fingers' as the current state.
 int EvdevProbeMTSlot(EvdevPtr device, MTSlotInfoPtr req) {
-  for (int i = 0; i < ABS_CNT; ++i)
-    req->values[i] = -1;
+  for (int i = 0; i < ABS_CNT; ++i) {
+    if (req->code == ABS_MT_TRACKING_ID)
+      req->values[i] = -1;
+    else
+      req->values[i] = 0;
+  }
   return Success;
 }
 
