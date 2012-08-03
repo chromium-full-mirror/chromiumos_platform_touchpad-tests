@@ -25,6 +25,11 @@ class GestureLog(object):
     self.events = self._ParseRawEvents(raw_events)
     self.gestures = self._MergeGestures(self.events)
 
+    self.properties = self.raw["properties"]
+    self.hwstates = filter(lambda e: e["type"] == "hardwareState",
+                           self.raw["entries"])
+    self.hwproperties = self.raw["hardwareProperties"]
+
   def _ParseRawEvents(self, gesture_list):
     events = []
 

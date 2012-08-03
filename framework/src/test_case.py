@@ -117,6 +117,10 @@ class TestCase(object):
     return self._TestCaseFile(".props")
 
   @property
+  def device_property_file(self):
+    return self._PlatformFile("platform.props")
+
+  @property
   def common_property_file(self):
     return self._CommonFile(".props")
 

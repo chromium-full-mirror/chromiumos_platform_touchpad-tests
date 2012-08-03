@@ -128,9 +128,7 @@ def Add(platform, activity_log, event_log):
   factory = TestFactory(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   case = factory.CreateTest(testname, activity_log, event_log)
 
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
-  result = runner.RunTest(case)
-  print result["gestures"]
+  print "Test \"" + case.name + "\" created"
 
 def Main():
   """

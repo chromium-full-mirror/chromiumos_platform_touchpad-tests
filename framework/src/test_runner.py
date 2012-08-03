@@ -33,6 +33,7 @@ class TestRunner(object):
       "logs": {
         "evdev": ""       # libevdev logs
         "gestures": "",   # gestures library logs
+        "activity": "",   # generated activity log
         "validation": ""  # logs from the validation process
       },
       "error": "",        # error message if applicable.
@@ -48,6 +49,7 @@ class TestRunner(object):
       "logs": {
         "evdev": "",
         "gestures": "",
+        "activity": "",
         "validation": ""
       },
       "error": "",
@@ -66,7 +68,7 @@ class TestRunner(object):
     try:
       properties = json.dumps(test_case.gesture_props)
       replay = Replay(test_case.platform_dat_file, self.replay_tool)
-      log = GestureLog(replay.Replay(test_case.log_file, properties))
+      log = GestureLog(replay.Replay(test_case.log_file, properties, True))
       score = test_case.module.Validate(log.raw, log.events, log.gestures)
 
       out["logs"]["evdev"] = replay.evdev_log
