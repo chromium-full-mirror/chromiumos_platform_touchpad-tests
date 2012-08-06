@@ -60,8 +60,18 @@ int EvdevProbe(EvdevPtr device) {
   strcpy(device->info.name, evemu->GetName().c_str());
   memcpy(device->info.prop_bitmask, evemu->GetPropMask(),
          sizeof(device->info.prop_bitmask));
+
+  memcpy(device->info.bitmask, evemu->GetMask(0),
+         sizeof(device->info.bitmask));
+  memcpy(device->info.key_bitmask, evemu->GetMask(EV_KEY),
+         sizeof(device->info.key_bitmask));
+  memcpy(device->info.led_bitmask, evemu->GetMask(EV_LED),
+         sizeof(device->info.led_bitmask));
+  memcpy(device->info.rel_bitmask, evemu->GetMask(EV_REL),
+         sizeof(device->info.rel_bitmask));
   memcpy(device->info.abs_bitmask, evemu->GetMask(EV_ABS),
          sizeof(device->info.abs_bitmask));
+
   for (size_t i = 0; i < ABS_CNT; ++i) {
     memcpy(&device->info.absinfo[i], &evemu->GetAbsinfo(i),
            sizeof(device->info.absinfo[i]));
