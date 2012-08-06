@@ -66,6 +66,7 @@ class TestRunner(object):
       return out
 
     try:
+      print "### Running", test_case.name
       properties = json.dumps(test_case.gesture_props)
       replay = Replay(test_case.platform_dat_file, self.replay_tool)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))

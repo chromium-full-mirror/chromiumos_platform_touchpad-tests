@@ -52,6 +52,7 @@ class FuzzyCheck(object):
       current_validator = validators.pop()
 
     for event in event_list:
+      print "validating", event.type, "with", current_validator
       if current_validator is None:
         # No validator left. All events unexpected.
         if not self._CheckUnexpectedEvent(event):
@@ -76,6 +77,7 @@ class FuzzyCheck(object):
 
     # expected validators score
     for validator in self.expected:
+      print "validator:", validator
       if validator.score is False:
         return False
       else:
@@ -83,6 +85,7 @@ class FuzzyCheck(object):
 
     # unexpected validators score
     for validator in self.unexpected:
+      print "unexp. validator:", validator
       if validator.score is False:
         return False
       else:
@@ -94,11 +97,13 @@ class FuzzyCheck(object):
     """
     find first unexpected validator to Accept event
     """
+    print "finding unexp validator for", event.type
     for validator in self.unexpected:
       if validator.Accept(event):
         validator.Validate(event)
         return True
 
+    print "no unexp validator for", event.type
     # no validator found. Fail.
     return False
 
@@ -331,7 +336,7 @@ class AnythingButValidator(object):
     pass
 
   def __str__(self):
-    return "not(" + str(self.but_.TypeString()) + ")"
+    return "not(" + str(self._but.TypeString()) + ")"
 
 ################################################################################
 # Fuzzy Comparator

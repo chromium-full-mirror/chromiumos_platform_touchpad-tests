@@ -179,7 +179,7 @@ class MotionGesture(object):
     return math.sqrt(sum(segments_hp_sq) / len(segments_hp))
 
   def __str__(self):
-    return "%s(%d)~%d" % (self.__class__.type, self.dx,
+    return "%s(%d)~%d" % (self.__class__.type, self.distance,
                   self.Roughness())
 
   def __repr__(self):

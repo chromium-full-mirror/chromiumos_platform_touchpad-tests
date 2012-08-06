@@ -115,8 +115,12 @@ def Run(glob, debug=False):
   """
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   results = runner.RunAll(glob)
-  pprint.pprint(results)
 
+  print "Test Results:"
+  for key, value in results.items():
+    print " ", key + ":", value["result"], "(" + str(value["score"]) + ")"
+    if value["result"] == "error":
+      print "   ", value["error"]
 
 def Add(platform, activity_log, event_log):
   """
