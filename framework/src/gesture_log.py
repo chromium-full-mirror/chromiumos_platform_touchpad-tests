@@ -179,8 +179,9 @@ class MotionGesture(object):
     return math.sqrt(sum(segments_hp_sq) / len(segments_hp))
 
   def __str__(self):
-    return "%s(%d)~%d" % (self.__class__.type, self.distance,
-                  self.Roughness())
+    fstr = "{0} d={1} x={2} y={3} r={4:.2f}"
+    return fstr.format(self.__class__.type, int(self.distance), int(self.dx),
+                       int(self.dy), self.Roughness())
 
   def __repr__(self):
     return str(self)
@@ -211,7 +212,7 @@ class FlingStopGesture(object):
     self.end = end
 
   def __str__(self):
-    return self.__class__.type + "()"
+    return self.__class__.type
 
   def __repr__(self):
     return str(self)

@@ -114,7 +114,12 @@ def Run(glob, debug=False):
   TODO(denniskempin): Pretty formating of results
   """
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  print "Running tests..."
   results = runner.RunAll(glob)
+
+  for key, value in results.items():
+    print "### Validation report for", key
+    print value["logs"]["validation"]
 
   print "Test Results:"
   for key, value in results.items():

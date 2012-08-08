@@ -38,6 +38,7 @@ class FuzzyCheck(object):
     something completely wrong happens. This is why 'nothing' happened is rated
     slightly better (score=0) as a non-matching behavior (score=False).
     """
+
     # special case for empty event list
     if len(event_list) == 0:
       if len(self.expected) == 0:
@@ -51,11 +52,13 @@ class FuzzyCheck(object):
     if len(self.expected) > 0:
       current_validator = validators.pop()
 
+    self._PrintHeader()
+
     for event in event_list:
-      print "validating", event.type, "with", current_validator
       if current_validator is None:
         # No validator left. All events unexpected.
         if not self._CheckUnexpectedEvent(event):
+          self._PrintFooter()
           return False
       else:
         if not current_validator.Accept(event):
@@ -64,20 +67,24 @@ class FuzzyCheck(object):
               # transition to next validator
               current_validator = validators.pop()
               current_validator.Validate(event)
+              self._PrintRow(event, current_validator)
           else:
             # unexpected event
             if not self._CheckUnexpectedEvent(event):
+              self._PrintFooter()
               return False
         else:
           # accepted by current validator
           current_validator.Validate(event)
+          self._PrintRow(event, current_validator)
+
+    self._PrintFooter()
 
     # calculate score
     score = 1
 
     # expected validators score
     for validator in self.expected:
-      print "validator:", validator
       if validator.score is False:
         return False
       else:
@@ -85,26 +92,62 @@ class FuzzyCheck(object):
 
     # unexpected validators score
     for validator in self.unexpected:
-      print "unexp. validator:", validator
       if validator.score is False:
         return False
       else:
         score = score * validator.score
 
+    self._PrintScoreTable(score)
+
     return score
+
+  # todo(denniskempin): Refactor to an abstract table printer class
+  def _PrintScoreTable(self, overall):
+    print "    {0:^67}".format("Score Breakdown")
+    header_format = "    +-{0:-^40}-+-{1:-^20}-+"
+    line_format = "    | {0:<40} | {1:<20} |"
+
+    print header_format.format(" expected validator ", "score")
+    for validator in self.expected:
+      print line_format.format(str(validator), validator.score)
+
+    print header_format.format(" unexpected validator ", "score")
+    for validator in self.unexpected:
+      print line_format.format(str(validator), validator.score)
+
+    print header_format.format("", "")
+    print "    | {0:^63} |".format("overall score: " + str(overall))
+    print "    +-{0:-^63}-+".format("")
+
+
+  def _PrintHeader(self):
+    print "    {0:^115}".format("Validation Log")
+    line_format = "    +-{0:-^12}-{1:-^12}-+-{2:-^40}-+-{3:-^40}-+"
+    print line_format.format(" start ", " end ", " event ",
+                             " validator (* unexpected) ")
+
+  def _PrintFooter(self):
+    line_format = "    +-{0:-^12}-{1:-^12}-+-{2:-^40}-+-{3:-^40}-+"
+    print line_format.format("", "", "", "")
+
+  def _PrintRow(self, event, validator, unexpected=False):
+    line_format = "    | {0:<12} {1:<12} | {2:<40} | {3:<40} |"
+    if unexpected:
+      validator = "*" + str(validator)
+    print line_format.format(event.start, event.end, str(event), str(validator))
 
   def _CheckUnexpectedEvent(self, event):
     """
     find first unexpected validator to Accept event
     """
-    print "finding unexp validator for", event.type
     for validator in self.unexpected:
       if validator.Accept(event):
+        self._PrintRow(event, validator, True)
         validator.Validate(event)
         return True
 
-    print "no unexp validator for", event.type
     # no validator found. Fail.
+    self._PrintRow(event, "no matching validator")
     return False
 
 ################################################################################
@@ -171,6 +214,7 @@ class AbstractCountValidator(AbstractValidator):
   Base class for buttons. Allows to Validate if a certain number of
   button events are present.
   """
+
   def __init__(self, count_match="== 1 ~ 1", start=None, end=None):
     AbstractValidator.__init__(self, start, end)
     self._count_match = FuzzyComparator(count_match)
@@ -187,11 +231,11 @@ class AbstractCountValidator(AbstractValidator):
     self.score = self.score * self._ScoreTimestamps()
 
   def TypeString(self):
-    return self.__class__.event_type + "()"
+    return self.__class__.event_type
 
   def __str__(self):
-    return self.__class__.event_type + "(" + str(self._count) + " " + \
-           str(self._count_match) + ")"
+    format_str = "{0} c:{1}{2}"
+    return format_str.format(self.TypeString(), self._count, self._count_match)
 
 
 class FlingStopValidator(AbstractCountValidator):
@@ -203,6 +247,7 @@ class AbstractButtonValidator(AbstractCountValidator):
   Base class for buttons. Allows to Validate if a certain number of
   button events are present.
   """
+
   def __init__(self, button, count_match="== 1 ~ 1", start=None, end=None):
     AbstractCountValidator.__init__(self, count_match, start, end)
     self._button = button
@@ -213,10 +258,6 @@ class AbstractButtonValidator(AbstractCountValidator):
 
   def TypeString(self):
     return self.__class__.event_type + "(" + str(self._button) + ")"
-
-  def __str__(self):
-    return self.__class__.event_type + "(" + str(self._button) + ", " + \
-         str(self._count) + " " + str(self._count_match) + ")"
 
 
 class ButtonDownValidator(AbstractButtonValidator):
@@ -289,21 +330,21 @@ class AbstractAxisValidator(AbstractValidator):
     self._UpdateScore()
 
   def TypeString(self):
-    return self.event_type + "()"
+    return self.event_type
 
   def __str__(self):
     valuators = []
     if self._distance_check:
-      valuators.append("d=" + str(int(self._distance)) + " " +
+      valuators.append("d:" + str(int(self._distance)) +
                        str(self._distance_check))
     if self._x_check:
-      valuators.append("x=" + str(int(self._x)) + " " + str(self._x_check))
+      valuators.append("x:" + str(int(self._x)) + str(self._x_check))
     if self._y_check:
-      valuators.append("y=" + str(int(self._y)) + " " + str(self._y_check))
+      valuators.append("y:" + str(int(self._y)) + str(self._y_check))
     if self._roughness_check:
-      valuators.append("r=" + str(int(sum(self._roughnesses))) + " " +
+      valuators.append("r:" + str(int(sum(self._roughnesses))) +
                        str(self._roughness_check))
-    return self.event_type + "(" + (" && ".join(valuators)) + ")"
+    return self.event_type + " " + (" ".join(valuators))
 
 
 class FlingValidator(AbstractAxisValidator):
@@ -397,7 +438,7 @@ class FuzzyComparator(object):
       self._operator_str = "=="
 
   def __str__(self):
-    result = self._operator_str + " " + str(int(self._target))
+    result = self._operator_str + str(int(self._target))
     if self._fuzzyness > 0:
       result = result + "~" + str(int(self._fuzzyness))
     return result
