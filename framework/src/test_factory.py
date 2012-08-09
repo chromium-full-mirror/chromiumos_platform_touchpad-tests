@@ -19,12 +19,24 @@ new_test_template = """\
 # found in the LICENSE file.
 from fuzzy_check import *
 
+# originally generated gestures:
+%s
+
 def Validate(raw, gestures, events):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-
+    # MotionValidator("== 100 ~ 50"),
+    # FlingStopValidator(),
+    # ButtonDownValidator(1),
+    # ButtonUpValidator(1),
+    # ScrollValidator(">= 100"),
+    # FlingValidator(">= 100"),
+    # AnythingButValidator(ButtonDownValidator(1)),
   ]
-  fuzzy.unexpected = [MotionValidator("<10")]
+  fuzzy.unexpected = [
+    # MotionValidator("<10"),
+    # FlingStopValidator("<10"),
+  ]
   return fuzzy.Check(gestures)
 """
 
@@ -83,21 +95,22 @@ class TestFactory(object):
     replay = Replay(case.platform_dat_file, self.replay_tool)
     replay.Trim(cmt_file, case.log_file, trim_from, trim_to)
 
-    # only create new module if this test case is not using the module
-    # from commons
-    if not case.module:
-      open(case.case_module_file, "w").write(new_test_template)
-
-    self._CheckCreatedTest(case, activity_log)
-
-    return case
-
-  def _CheckCreatedTest(self, case, activity_log):
     properties_str = json.dumps(case.gesture_props)
     replay = Replay(case.platform_dat_file, self.replay_tool)
     replay_data = replay.Replay(case.log_file, properties_str, True)
-
     replay_log = GestureLog(replay_data)
+
+    # only create new module if this test case is not using the module
+    # from commons
+    if not case.module:
+      report = "# " + "\n#   ".join([str(g) for g in replay_log.gestures])
+      open(case.case_module_file, "w").write(new_test_template % report)
+
+    self._CheckCreatedTest(case, activity_log, replay_log)
+
+    return case
+
+  def _CheckCreatedTest(self, case, activity_log, replay_log):
     original_log = GestureLog(activity_log)
 
     print "Checking test for warnings:"
