@@ -67,15 +67,15 @@ class TestRunner(object):
       out["result"] = "error"
       return out
 
+    old_stdout = sys.stdout
+    sys.stdout = validation_out = StringIO()
+
     try:
       properties = json.dumps(test_case.gesture_props)
       replay = Replay(test_case.platform_dat_file, self.replay_tool)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))
 
-      old_stdout = sys.stdout
-      sys.stdout = validation_out = StringIO()
       score = test_case.module.Validate(log.raw, log.events, log.gestures)
-      sys.stdout = old_stdout
 
       out["logs"]["evdev"] = replay.evdev_log
       out["logs"]["gestures"] = replay.gestures_log
@@ -85,12 +85,13 @@ class TestRunner(object):
       out["gestures"] = "\n".join(map(lambda g: str(g), log.gestures))
       out["result"] = "success" if score is not False else "failure"
       out["score"] = score
-      return out
 
     except:
       out["error"] = traceback.format_exc()
       out["result"] = "error"
-      return out
+
+    sys.stdout = old_stdout
+    return out
 
   def RunAll(self, glob="all"):
     """
