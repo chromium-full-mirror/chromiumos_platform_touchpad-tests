@@ -17,12 +17,13 @@ new_test_template = """\
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
-from fuzzy_check import *
+from fuzzy_check import FuzzyCheck
+from validators import *
 
 # originally generated gestures:
 %s
 
-def Validate(raw, gestures, events):
+def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
     # MotionValidator("== 100 ~ 50"),

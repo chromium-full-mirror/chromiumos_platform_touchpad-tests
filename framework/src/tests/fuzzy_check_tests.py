@@ -5,6 +5,7 @@
 # This module provides unit tests for FuzzyCheck from fuzzy_check.py including
 # it's internal classes
 from fuzzy_check import *
+from validators import *
 from gesture_log import *
 import unittest
 
