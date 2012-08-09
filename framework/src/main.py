@@ -108,10 +108,10 @@ def Log(glob, debug=False):
   print results["logs"]["activity"]
 
 
-def Run(glob, debug=False):
+def Run(glob, out_file=None, ref_file=None):
   """
-  Run tests. For now just print all of the results as a data structure.
-  TODO(denniskempin): Pretty formating of results
+  Run tests.
+  TODO(denniskempin): Pretty formatting with code extracted from fuzzy_check
   """
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   print "Running tests..."
@@ -121,11 +121,24 @@ def Run(glob, debug=False):
     print "### Validation report for", key
     print value["logs"]["validation"]
 
+  ref = {}
+  if ref_file:
+    ref = json.load(open(ref_file))
+
   print "Test Results:"
   for key, value in results.items():
-    print " ", key + ":", value["result"], "(" + str(value["score"]) + ")"
+    res = "  " + key + ": " + value["result"] + " (" + str(value["score"]) + ")"
+    if key in ref:
+      ref_value = ref[key]
+      res = (res + " vs " + ref_value["result"] + " (" +
+             str(ref_value["score"]) + ")")
+    print res
     if value["result"] == "error":
       print "   ", value["error"]
+
+  if out_file:
+    json.dump(results, open(out_file, "w"), indent=2)
+    print "results stored in:", out_file
 
 def Add(platform, activity_log, event_log):
   """
@@ -161,13 +174,23 @@ def Main():
     HelpExit()
 
   # call command method according to command line arguments
+  # todo: use an option parser library
   cmd = sys.argv[1]
 
-  if cmd == "run" or cmd == "debug":
-    if len(sys.argv) < 3:
+  if cmd == "run":
+    if len(sys.argv) == 3:
+      test_name = sys.argv[2]
+      Run(test_name)
+    elif len(sys.argv) == 5 and sys.argv[2] == "--out":
+      test_name = sys.argv[4]
+      out = sys.argv[3]
+      Run(test_name, out)
+    elif len(sys.argv) == 5 and sys.argv[2] == "--ref":
+      test_name = sys.argv[4]
+      ref_file = sys.argv[3]
+      Run(test_name, None, ref_file)
+    else:
       HelpExit()
-    test_name = sys.argv[2]
-    Run(test_name, (cmd == "debug"))
 
   elif cmd == "log":
     if len(sys.argv) < 3:
