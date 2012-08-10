@@ -29,14 +29,13 @@ Runs a test and prints the requested log of a specific test. In case the
 --from option is used, the test will not be run, but the log will be loaded from
 the test results stored in file at 'filename'.
 
-$ touchtests add [platform] [activity_log] [cmt_log]
-Adds a new test case. Each test belongs to a platform "lumpy", "cr48", etc.
+$ touchtests add [name] [activity_log] [cmt_log]
+Adds a new test case. The name has to include the platform and can optionally
+specify a subfolder where the test should be stored.
 activity_log and cmt_log should point to the file names of log files collected
 from the device.
 You can trim activity_log in tp_view, touchtests will automatically trim the
 cmt_log accordingly.
-The test will be named after the filename of the activity_log and a dummy
-validation script is automatically generated.
 
 General Info:
 -------------
@@ -158,13 +157,11 @@ def Get(test_name, what, file=None):
   elif what == "events":
     print results["events"]
 
-def Add(platform, activity_log, event_log):
+def Add(testname, activity_log, event_log):
   """
   Adds a new test case.
   """
   # determine test name from activity_log name
-  testname = path.splitext(path.basename(activity_log))[0]
-  testname = path.join(platform, testname)
   factory = TestFactory(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   case = factory.CreateTest(testname, activity_log, event_log)
 
@@ -233,10 +230,10 @@ def Main():
   elif cmd == "add":
     if len(sys.argv) < 5:
       HelpExit()
-    platform = sys.argv[2]
+    testname = sys.argv[2]
     activity_log = sys.argv[3]
     event_log = sys.argv[4]
-    Add(platform, activity_log, event_log)
+    Add(testname, activity_log, event_log)
 
   else:
     HelpExit()
