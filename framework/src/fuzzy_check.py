@@ -9,6 +9,8 @@
 import math
 import re
 
+from table import Table
+
 class FuzzyCheck(object):
   """
   This class can validate a list of gestures to a previously defined set of
@@ -52,14 +54,35 @@ class FuzzyCheck(object):
     if len(self.expected) > 0:
       current_validator = validators.pop()
 
-    self._PrintHeader()
+    table = Table("    ")
+    table.title = "Validation Log"
+    table.header("start - end", "event", "validator (* unexpected)")
 
+    def AddRow(event, validator, unexpected=False):
+      if unexpected:
+         validator = "*" + str(validator)
+      table.row("%f - %f" % (event.start, event.end), event, validator)
+
+    def CheckUnexpectedEvent(event):
+      for validator in self.unexpected:
+        if validator.Accept(event):
+          AddRow(event, validator, True)
+          validator.Validate(event)
+          return True
+      # no validator found. Fail.
+      AddRow(event, "no matching validator")
+      return False
+
+    failed = False
     for event in event_list:
+      if failed:
+        AddRow(event, "-")
+        continue
+
       if current_validator is None:
         # No validator left. All events unexpected.
-        if not self._CheckUnexpectedEvent(event):
-          self._PrintFooter()
-          return False
+        if not CheckUnexpectedEvent(event):
+          failed = True
       else:
         if not current_validator.Accept(event):
           if (current_validator.score > 0 and len(validators) > 0
@@ -67,88 +90,58 @@ class FuzzyCheck(object):
               # transition to next validator
               current_validator = validators.pop()
               current_validator.Validate(event)
-              self._PrintRow(event, current_validator)
+              AddRow(event, current_validator)
           else:
             # unexpected event
-            if not self._CheckUnexpectedEvent(event):
-              self._PrintFooter()
-              return False
+            if not CheckUnexpectedEvent(event):
+              failed = True
         else:
           # accepted by current validator
           current_validator.Validate(event)
-          self._PrintRow(event, current_validator)
+          AddRow(event, current_validator)
 
-    self._PrintFooter()
+    print table
 
     # calculate score
-    score = 1
+    if failed:
+      score = False
+    else:
+      score = 1
 
-    # expected validators score
-    for validator in self.expected:
-      if validator.score is False:
-        return False
-      else:
-        score = score * validator.score
+      # expected validators score
+      for validator in self.expected:
+        if validator.score is False:
+          return False
+        else:
+          score = score * validator.score
 
-    # unexpected validators score
-    for validator in self.unexpected:
-      if validator.score is False:
-        return False
-      else:
-        score = score * validator.score
+      # unexpected validators score
+      for validator in self.unexpected:
+        if validator.score is False:
+          return False
+        else:
+          score = score * validator.score
 
     self._PrintScoreTable(score)
 
     return score
 
-  # todo(denniskempin): Refactor to an abstract table printer class
   def _PrintScoreTable(self, overall):
-    print "    {0:^67}".format("Score Breakdown")
-    header_format = "    +-{0:-^40}-+-{1:-^20}-+"
-    line_format = "    | {0:<40} | {1:<20} |"
+    table = Table("    ")
+    table.title = "Score Breakdown"
 
-    print header_format.format(" expected validator ", "score")
+    table.header("expected validator", "score")
     for validator in self.expected:
-      print line_format.format(str(validator), validator.score)
+      table.row(validator, validator.score)
 
-    print header_format.format(" unexpected validator ", "score")
+
+    table.header("unexpected validator", "score")
     for validator in self.unexpected:
-      print line_format.format(str(validator), validator.score)
+      table.row(validator, validator.score)
 
-    print header_format.format("", "")
-    print "    | {0:^63} |".format("overall score: " + str(overall))
-    print "    +-{0:-^63}-+".format("")
+    table.footer = "overall score: " + str(overall)
+    print table
 
-
-  def _PrintHeader(self):
-    print "    {0:^115}".format("Validation Log")
-    line_format = "    +-{0:-^12}-{1:-^12}-+-{2:-^40}-+-{3:-^40}-+"
-    print line_format.format(" start ", " end ", " event ",
-                             " validator (* unexpected) ")
-
-  def _PrintFooter(self):
-    line_format = "    +-{0:-^12}-{1:-^12}-+-{2:-^40}-+-{3:-^40}-+"
-    print line_format.format("", "", "", "")
-
-  def _PrintRow(self, event, validator, unexpected=False):
-    line_format = "    | {0:<12} {1:<12} | {2:<40} | {3:<40} |"
-    if unexpected:
-      validator = "*" + str(validator)
-    print line_format.format(event.start, event.end, str(event), str(validator))
-
-  def _CheckUnexpectedEvent(self, event):
-    """
-    find first unexpected validator to Accept event
-    """
-    for validator in self.unexpected:
-      if validator.Accept(event):
-        self._PrintRow(event, validator, True)
-        validator.Validate(event)
-        return True
-
-    # no validator found. Fail.
-    self._PrintRow(event, "no matching validator")
-    return False
 
 ################################################################################
 # Fuzzy Comparator

@@ -5,14 +5,17 @@
 # This module is the main module for the console interface. It takes care
 # of parsing the command line arguments and formating the output
 from os import path
+import json
+import math
+import os
+import pprint
+import sys
+
+from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
 from test_runner import TestRunner
 from test_verifier import TestVerifier
-import json
-import os
-import pprint
-import sys
 
 _help_text = """\
 Available Commands:
@@ -109,36 +112,62 @@ def Log(glob, debug=False):
 
 
 def Run(glob, out_file=None, ref_file=None):
-  """
-  Run tests.
-  TODO(denniskempin): Pretty formatting with code extracted from fuzzy_check
-  """
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   print "Running tests..."
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
   results = runner.RunAll(glob)
 
+  # print reports
   for key, value in results.items():
     print "### Validation report for", key
     print value["logs"]["validation"]
+    print value["error"]
 
+  # load reference
   ref = {}
   if ref_file:
     ref = json.load(open(ref_file))
 
-  print "Test Results:"
+  # format result table
+  table = Table()
+  table.title = "Test Results"
+  table.header("Test", "reference score", "new score", "delta")
+
   for key, value in results.items():
-    res = "  " + key + ": " + value["result"] + " (" + str(value["score"]) + ")"
+    def ResultStr(value):
+      # format result to string
+      if value["result"] == "success":
+        return "%s (%.4f)" % (value["result"], value["score"])
+      else:
+        return value["result"]
+
+    # format reference and delta column
+    ref_score = ""
+    delta_str = ""
+    regression = False
     if key in ref:
-      ref_value = ref[key]
-      res = (res + " vs " + ref_value["result"] + " (" +
-             str(ref_value["score"]) + ")")
-    print res
-    if value["result"] == "error":
-      print "   ", value["error"]
+      ref_score = ResultStr(ref[key])
+      delta = value["score"] - ref[key]["score"]
+      if math.fabs(delta) < 1e-10:
+        # don't color, but line up with other values
+        delta_str = "      %.4f    " % delta
+      elif delta < 0:
+        regression = True
+        # color red
+        delta_str = "\x1b[91m%+.4f\x1b[0m" % delta
+      else:
+        # color green
+        delta_str = "\x1b[92m%+.4f\x1b[0m" % delta
+    table.row(key, ref_score, ResultStr(value), delta_str)
+
+  print table
 
   if out_file:
     json.dump(results, open(out_file, "w"), indent=2)
     print "results stored in:", out_file
+
+  if regression:
+    print "\x1b[91mThere are regressions present in this test run!\x1b[0m"
+    exit(-1)
 
 def Add(platform, activity_log, event_log):
   """
