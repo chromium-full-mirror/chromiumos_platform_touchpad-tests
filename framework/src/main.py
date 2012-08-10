@@ -24,12 +24,10 @@ $ touchtests run [all|testname]
 Executes tests. Either all of them and presents a resulting overall score.
 Or just a single named test.
 
-$ touchtests debug [testname]
-Same as run, but additionally displays the gestures library log.
-
-$ touchtests log [testname]
-Executes a test and prints the activity_log to stdout. Useful to view the
-results in tp_view.
+$ touchtests get [--from filename] testname gestures-log|evdev-log|activity-log
+Runs a test and prints the requested log of a specific test. In case the
+--from option is used, the test will not be run, but the log will be loaded from
+the test results stored in file at 'filename'.
 
 $ touchtests add [platform] [activity_log] [cmt_log]
 Adds a new test case. Each test belongs to a platform "lumpy", "cr48", etc.
@@ -81,35 +79,6 @@ def Verify(device, glob):
     print "###", case.name
     report = verifier.Verify(case)
     print report
-
-
-def Log(glob, debug=False):
-  """
-  Print only the activity log. The user can pipe the output of this command
-  to be used in other tools like tpview.
-  """
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
-  cases = runner.DiscoverTestCases(glob)
-
-  # check number of test cases
-  if len(cases) > 1:
-    print "Multiple test cases match '" + str(glob) + "':"
-    for case in cases:
-      print " -", case.name
-    return
-
-  if len(cases) < 1:
-    print "Cannot find test " + glob
-    return
-
-  # run test and print results
-  results = runner.RunTest(cases[0])
-  if results["error"]:
-    print results["error"]
-    return
-
-  print results["logs"]["activity"]
-
 
 def Run(glob, out_file=None, ref_file=None):
   print "Running tests..."
@@ -169,6 +138,26 @@ def Run(glob, out_file=None, ref_file=None):
     print "\x1b[91mThere are regressions present in this test run!\x1b[0m"
     exit(-1)
 
+def Get(test_name, what, file=None):
+  if file:
+    data = json.load(open(file))
+    results = data[test_name]
+  else:
+    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+    data = runner.RunAll(test_name)
+    results = data[test_name]
+
+  if what == "gestures-log":
+    print results["logs"]["gestures"]
+  elif what == "evdev-log":
+    print results["logs"]["evdev"]
+  elif what == "activity-log":
+    print results["logs"]["activity"]
+  elif what == "gestures":
+    print results["gestures"]
+  elif what == "events":
+    print results["events"]
+
 def Add(platform, activity_log, event_log):
   """
   Adds a new test case.
@@ -221,11 +210,18 @@ def Main():
     else:
       HelpExit()
 
-  elif cmd == "log":
-    if len(sys.argv) < 3:
+  elif cmd == "get":
+    if len(sys.argv) == 4:
+      test_name = sys.argv[3]
+      what = sys.argv[2]
+      Get(test_name, what)
+    elif len(sys.argv) == 6 and sys.argv[2] == "--from":
+      test_name = sys.argv[5]
+      what = sys.argv[4]
+      file = sys.argv[3]
+      Get(test_name, what, file)
+    else:
       HelpExit()
-    test_name = sys.argv[2]
-    Log(test_name)
 
   elif cmd == "verify":
     if len(sys.argv) < 4:
