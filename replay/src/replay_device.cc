@@ -57,14 +57,8 @@ void ReplayDevice::ReplayEvents(GenericIStream* stream) {
   }
 
   // handle remaining timers.
-  while (timer_callback_) {
-    current_time_ = timer_target_time_;
-    GesturesTimerCallback callback = timer_callback_;
-    timer_callback_ = NULL;
+  RunTimer(true);
 
-    // the callback might re-set timer_callback
-    callback(timer_target_time_, timer_callback_udata_);
-  }
   Log(ReplayDeviceConfig::kLogActivity, interpreter_->EncodeActivityLog());
 }
 
@@ -94,12 +88,7 @@ void ReplayDevice::LogAll(ReplayDeviceConfig::LogCategory category,
 void ReplayDevice::SynCallback(EventStatePtr evstate, struct timeval* timeval) {
   current_state_ = evstate;
   current_time_ = StimeFromTimeval(timeval);
-  if (timer_callback_ && current_time_ > timer_target_time_) {
-    GesturesTimerCallback callback = timer_callback_;
-    timer_callback_ = NULL;
-
-    callback(timer_target_time_, timer_callback_udata_);
-  }
+  RunTimer(false);
   evdev_gesture_->PushEventState(evstate, timeval);
 }
 
@@ -151,6 +140,21 @@ void ReplayDevice::SetFakeTimer(stime_t time, GesturesTimerCallback callback,
   timer_target_time_ = current_time_ + time;
   timer_callback_ = callback;
   timer_callback_udata_ = callback_udata;
+}
+
+void ReplayDevice::RunTimer(bool update_current_time) {
+  while (timer_callback_ && (current_time_ > timer_target_time_ ||
+                             update_current_time)) {
+    if (update_current_time)
+      current_time_ = timer_target_time_;
+    GesturesTimerCallback callback = timer_callback_;
+    timer_callback_ = NULL;
+
+    // the callback might re-set timer_callback
+    stime_t next = callback(timer_target_time_, timer_callback_udata_);
+    if (next >= 0.0)
+      SetFakeTimer(next, callback, timer_callback_udata_);
+  }
 }
 
 ReplayDevice* ReplayDevice::GetDevice(size_t id) {
