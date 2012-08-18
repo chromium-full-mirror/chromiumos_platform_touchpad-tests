@@ -24,7 +24,7 @@ $ touchtests run [all|testname]
 Executes tests. Either all of them and presents a resulting overall score.
 Or just a single named test.
 
-$ touchtests get [--from filename] testname gestures-log|evdev-log|activity-log
+$ touchtests get [--from filename] gestures-log|evdev-log|activity-log testname
 Runs a test and prints the requested log of a specific test. In case the
 --from option is used, the test will not be run, but the log will be loaded from
 the test results stored in file at 'filename'.
