@@ -11,6 +11,9 @@
 		"Pressure Calibration Offset": -6.91735322550015,
 		"Pressure Calibration Slope": 1.84293108692446,
 		"Box Width": 1.0,
-		"Sensor Jump Filter Enable": 1
+		"Sensor Jump Filter Enable": 1,
+		"Sensor Jump Min Dist Non-Move": 0.3,
+		"Sensor Jump Min Dist Move": 0.9,
+		"Sensor Jump Similar Multiplier Move": 1.5
 	}
 }
