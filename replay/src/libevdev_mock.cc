@@ -95,8 +95,8 @@ int EvdevProbeAbsinfo(EvdevPtr device, size_t key) {
 int EvdevIsSinglePressureDevice(EvdevPtr device) {
     EvdevInfoPtr info = &device->info;
 
-    return (!TestBit(ABS_MT_PRESSURE, info->bitmask) &&
-            TestBit(ABS_PRESSURE, info->bitmask));
+    return (!TestBit(ABS_MT_PRESSURE, info->abs_bitmask) &&
+            TestBit(ABS_PRESSURE, info->abs_bitmask));
 }
 
 // This method usually queries the kernel for the current MTSlot state.

@@ -36,6 +36,7 @@ clean: CLEAN(replay)
 # unit tests
 tests_LIBS = -lgtest
 tests_OBJS = src/test_main.o \
+	src/libevdev_mock_tests.o \
 	src/evemu_device_tests.o \
 	src/prop_provider_tests.o \
 	src/trimmer_tests.o \
