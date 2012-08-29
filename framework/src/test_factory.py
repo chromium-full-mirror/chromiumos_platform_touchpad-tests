@@ -138,6 +138,9 @@ class TestFactory(object):
         properties_to_check.update(case_properties["gestures"])
 
     for key in properties_to_check.keys():
+      if key not in original_log.properties:
+        # Ignore properties that didn't exist when log was created
+        continue
       replay_value = replay_log.properties[key]
       original_value = original_log.properties[key]
 
