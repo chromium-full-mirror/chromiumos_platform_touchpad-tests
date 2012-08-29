@@ -1,0 +1,17 @@
+{
+	"gestures": {
+		"Pressure Calibration Offset": -23.2,
+		"Pressure Calibration Slope": 1.21,
+		"SemiMT Non Linear Area Left": 1217,
+		"SemiMT Non Linear Area Right": 5733,
+		"SemiMT Non Linear Area Top": 1061,
+		"SemiMT Non Linear Area Bottom": 4798,
+		"Palm Pressure": 235.0,
+		"SemiMT Correcting Filter Enable": 1,
+		"Scroll Stationary Finger Max Distance": 20.0,
+		"Tap Min Separation": 0.0,
+		"Max Allowed Pressure Change Per Sec": 2200.0,
+		"Max Hysteresis Pressure Per Sec": 1200.0,
+		"Fling Buffer Depth": 6
+	}
+}
