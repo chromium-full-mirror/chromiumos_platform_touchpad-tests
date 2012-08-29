@@ -56,8 +56,6 @@ class TestRunnerTests(unittest.TestCase):
     results = TestRunner(tests_dir, replay_tool).RunAll()
 
     # check if test cases are included in results
-    self.assertEqual(results["platform_a/complete_test"]["result"], "success")
-    self.assertEqual(results["platform_a/fallback_test"]["result"], "success")
     self.assertEqual(results["platform_b/failing_test"]["result"], "failure")
     self.assertEqual(results["platform_b/broken_module"]["result"], "error")
     self.assertEqual(results["platform_b/no_validate"]["result"], "error")

@@ -60,26 +60,6 @@ class TestCaseTests(unittest.TestCase):
     assertCheckError("platform_b/broken_module")
     assertCheckError("platform_b/no_check")
 
-  def test_properties(self):
-    """
-    This test checks if the properties are all loaded from all properties files
-    and merged correctly. The files define the following properties:
-     - platform_a/platform.props: a, b, c = "platform"
-     - common/propsTest.props: b, c = "common"
-     - platform_a/propsTest.props: a = "test-case"
-    """
-    testcase = TestCase(tests_path, "platform_a/props_test.log")
-    gesture_props = testcase.gesture_props;
-    validator_props = testcase.validator_props;
-
-    self.assertEqual(gesture_props["a"], "platform")
-    self.assertEqual(gesture_props["b"], "common")
-    self.assertEqual(gesture_props["c"], "test-case")
-
-    self.assertEqual(validator_props["a"], "platform")
-    self.assertEqual(validator_props["b"], "common")
-    self.assertEqual(validator_props["c"], "test-case")
-
 
 if __name__ == '__main__':
   unittest.main()
