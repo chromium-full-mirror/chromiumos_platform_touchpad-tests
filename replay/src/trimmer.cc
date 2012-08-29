@@ -5,6 +5,7 @@
 #include <trimmer.h>
 
 #include <evemu_device.h>
+#include <libevdev_mock.h>
 #include <util.h>
 
 namespace replay {
@@ -43,7 +44,10 @@ void Trimmer::WriteCurrentState(GenericOStream* out, struct input_event* syn) {
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_TOOL_TYPE, slot->tool_type);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_BLOB_ID, slot->blob_id);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_TRACKING_ID, slot->tracking_id);
-    WriteEvent(out, syn->time, EV_ABS, ABS_MT_PRESSURE, slot->pressure);
+    if (EvdevIsSinglePressureDevice(device))
+      WriteEvent(out, syn->time, EV_ABS, ABS_PRESSURE, slot->pressure);
+    else
+      WriteEvent(out, syn->time, EV_ABS, ABS_MT_PRESSURE, slot->pressure);
     WriteEvent(out, syn->time, EV_ABS, ABS_MT_DISTANCE, slot->distance);
   }
 
