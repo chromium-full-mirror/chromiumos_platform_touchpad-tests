@@ -8,6 +8,7 @@
 from gesture_log import GestureLog
 from replay import Replay
 from test_case import TestCase
+import decimal
 import json
 import math
 import os
@@ -77,7 +78,10 @@ class TestFactory(object):
     """
     case = TestCase(self.tests_dir, name)
     activity_log = open(activity_file).read()
-    activity = json.loads(activity_log)
+
+    # make sure the precision is enough
+    decimal.setcontext(decimal.Context(prec=8))
+    activity = json.loads(activity_log, parse_float=decimal.Decimal)
 
     # extract from/to times from activity log
     hwstates = filter(lambda e: e["type"] == "hardwareState",
