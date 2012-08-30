@@ -1,0 +1,16 @@
+{
+	"gestures": {
+		"IIR b0": 1,
+		"IIR b1": 0,
+		"IIR b2": 0,
+		"IIR b3": 0,
+		"IIR a1": 0,
+		"IIR a2": 0,
+		"IIR Distance Threshold": 1000,
+		"Input Queue Delay": 0,
+		"Pressure Calibration Offset": -13.034105833098,
+		"Pressure Calibration Slope": 1.847199617737,
+		"Box Width": 1.0,
+		"Sensor Jump Filter Enable": 1
+	}
+}
