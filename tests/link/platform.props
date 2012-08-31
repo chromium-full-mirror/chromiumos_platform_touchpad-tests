@@ -12,6 +12,8 @@
 		"Point Y Out Scale": 2.0,
 		"Pressure Calibration Offset": -15.369282490859,
 		"Pressure Calibration Slope": 1.3219851012421,
+		"Scroll X Out Scale": 0.5,
+		"Scroll Y Out Scale": 0.5,
 		"Touch Major Calibration Slope": 0.048645047059903,
 		"Touch Major Calibration Offset": -1.29829630692326,
 		"Max Allowed Pressure Change Per Sec": 100000.0,
