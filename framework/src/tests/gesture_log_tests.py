@@ -48,6 +48,11 @@ class GestureLogTests(unittest.TestCase):
       else:
         self.assertEqual(gestures[i].type, "Motion")
 
+  def test_motion_merge_with_tap_and_half_log(self):
+    log = self._log_from_test_file("4_tap_and_half")
+    motions = filter(lambda g: g.type == "Motion", log.gestures)
+    self.assertEqual(len(motions), 4)
+
   def test_clicks_log(self):
     log = self._log_from_test_file("4_clicks")
     gestures = filter(lambda g: g.type != "FlingStop", log.gestures)

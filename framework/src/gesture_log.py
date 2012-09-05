@@ -84,6 +84,8 @@ class GestureLog(object):
             last_event_of_type[event.type] = event
             gestures.append(event)
       else:
+        if event.type == "ButtonUp" or event.type == "ButtonDown":
+          last_event_of_type = {}
         gestures.append(event)
     return gestures
 
