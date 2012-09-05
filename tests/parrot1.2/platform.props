@@ -11,6 +11,8 @@
 		"Pressure Calibration Offset": -13.034105833098,
 		"Pressure Calibration Slope": 1.847199617737,
 		"Box Width": 1.0,
-		"Sensor Jump Filter Enable": 1
+		"Sensor Jump Filter Enable": 1,
+		"Merge Max Ratio": 0.63,
+		"Split Merge Max Movement": 7.1
 	}
 }
