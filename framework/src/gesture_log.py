@@ -5,6 +5,7 @@
 # This module contains the GestureLog class which is used for converting the
 # raw activity log into a processable format.
 
+import decimal
 import json
 import math
 
@@ -20,7 +21,8 @@ class GestureLog(object):
   - self.gestures the list of gestures.
   """
   def __init__(self, log):
-    self.raw = json.loads(log)
+    decimal.setcontext(decimal.Context(prec=8))
+    self.raw = json.loads(log, parse_float=decimal.Decimal)
     raw_events = filter(lambda e: e["type"] == "gesture", self.raw["entries"])
     self.events = self._ParseRawEvents(raw_events)
     self.gestures = self._MergeGestures(self.events)
@@ -34,8 +36,8 @@ class GestureLog(object):
     events = []
 
     for gesture in gesture_list:
-      start_time = float(gesture["startTime"])
-      end_time = float(gesture["endTime"])
+      start_time = gesture["startTime"]
+      end_time = gesture["endTime"]
 
       if gesture["gestureType"] == "move":
         events.append(MotionGesture(gesture["dx"], gesture["dy"], start_time,
@@ -76,7 +78,7 @@ class GestureLog(object):
           last_event_of_type[event.type] = event
           gestures.append(event)
         else:
-          if event.start - last_event_of_type[event.type].end < 0.1:
+          if float(event.start - last_event_of_type[event.type].end) < 0.1:
             last_event_of_type[event.type].Append(event)
           else:
             last_event_of_type[event.type] = event

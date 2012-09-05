@@ -6,6 +6,7 @@
 from os import path
 from test_factory import TestFactory
 from test_runner import TestRunner
+import decimal
 import json
 import os
 import unittest
@@ -49,12 +50,13 @@ class TestFactoryTests(unittest.TestCase):
     self.assertNotEqual(result["result"], "error")
 
     # load hardware states from original log
-    original = json.load(open(activity_file, "r"))
+    original = json.load(open(activity_file, "r"), parse_float=decimal.Decimal)
     original_states = filter(lambda e: e["type"] == "hardwareState",
                              original["entries"])
 
     # load hardware states from replayed log
-    replay = json.loads(result["logs"]["activity"])
+    decimal.setcontext(decimal.Context(prec=8))
+    replay = json.loads(result["logs"]["activity"], parse_float=decimal.Decimal)
     replay_states = filter(lambda e: e["type"] == "hardwareState",
                            replay["entries"])
 

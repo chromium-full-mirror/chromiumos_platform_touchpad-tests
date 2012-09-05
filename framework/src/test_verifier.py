@@ -10,6 +10,7 @@ from replay import Replay
 from test_case import TestCase
 from test_factory import TestFactory
 from test_runner import TestRunner
+import decimal
 import json
 import math
 import os
@@ -42,6 +43,7 @@ class TestVerifier(object):
     # We need to store the user defined properties to reset them later
     self.original_props = {}
     safecall("/opt/google/touchpad/tpcontrol log")
+    decimal.setcontext(decimal.Context(prec=8))
     activity = json.load(open("/var/log/touchpad_activity_log.txt", "r"))
     for userprop in TestFactory.user_property_names:
       if userprop in activity["properties"]:
@@ -74,7 +76,7 @@ class TestVerifier(object):
     result = self.runner.RunTest(case)
     if result["error"]:
       return "Failed to execute test: " + result["error"]
-    fake = json.loads(result["logs"]["activity"])
+    fake = json.loads(result["logs"]["activity"], parse_float=decimal.Decimal)
 
     # verify and collect results for report
     report = self._VerifyProperties(fake, real)
