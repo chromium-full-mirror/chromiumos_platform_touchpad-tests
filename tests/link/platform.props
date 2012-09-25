@@ -17,6 +17,9 @@
 		"Touch Major Calibration Slope": 0.048645047059903,
 		"Touch Major Calibration Offset": -1.29829630692326,
 		"Max Allowed Pressure Change Per Sec": 100000.0,
-		"Max Hysteresis Pressure Per Sec": 100000.0
+		"Max Hysteresis Pressure Per Sec": 100000.0,
+		"Two Finger Horizontal Close Distance Thresh": 68.0,
+		"Two Finger Vertical Close Distance Thresh": 40.0,
+		"Two Finger Pressure Diff Thresh": 52.0
 	}
 }
