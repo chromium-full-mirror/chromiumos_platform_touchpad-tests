@@ -14,6 +14,8 @@
 		"Sensor Jump Filter Enable": 1,
 		"Sensor Jump Min Dist Non-Move": 0.3,
 		"Sensor Jump Min Dist Move": 0.9,
-		"Sensor Jump Similar Multiplier Move": 1.5
+		"Sensor Jump Similar Multiplier Move": 1.5,
+		"Split Merge Max Movement": 6.5,
+		"Merge Max Ratio": 0.5
 	}
 }
