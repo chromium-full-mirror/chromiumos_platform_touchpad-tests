@@ -12,6 +12,8 @@ install:
 	install -D -m 0755 src/gesture_log.py  $(DESTDIR)/framework/gesture_log.py
 	install -D -m 0755 src/main.py         $(DESTDIR)/framework/main.py
 	install -D -m 0755 src/replay.py       $(DESTDIR)/framework/replay.py
+	install -D -m 0755 src/table.py        $(DESTDIR)/framework/table.py
+	install -D -m 0755 src/validators.py   $(DESTDIR)/framework/validators.py
 	install -D -m 0755 src/test_case.py    $(DESTDIR)/framework/test_case.py
 	install -D -m 0755 src/test_factory.py $(DESTDIR)/framework/test_factory.py
 	install -D -m 0755 src/test_runner.py  $(DESTDIR)/framework/test_runner.py
