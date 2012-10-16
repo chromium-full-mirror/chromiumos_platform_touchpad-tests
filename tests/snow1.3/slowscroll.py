@@ -21,6 +21,7 @@ def Validate(raw, events, gestures):
     # The important thing about this test is that we do not get clicks
   ]
   fuzzy.unexpected = [
+    MotionValidator("== 0 ~ 10"),
     ScrollValidator("<150"),
     FlingStopValidator("<10"),
     FlingValidator("<1000"),
