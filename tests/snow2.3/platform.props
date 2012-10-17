@@ -16,6 +16,6 @@
 		"Sensor Jump Min Dist Move": 0.9,
 		"Sensor Jump Similar Multiplier Move": 1.5,
 		"Split Merge Max Movement": 6.5,
-		"Merge Max Ratio": 0.5,
+		"Merge Max Ratio": 0.5
 	}
 }
