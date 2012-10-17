@@ -85,7 +85,8 @@ def Run(glob, out_file=None, ref_file=None):
   results = runner.RunAll(glob)
 
   # print reports
-  for key, value in results.items():
+  sorted_results_items = sorted(results.items())
+  for key, value in sorted_results_items:
     print "### Validation report for", key
     print value["logs"]["validation"]
     print value["error"]
@@ -100,7 +101,7 @@ def Run(glob, out_file=None, ref_file=None):
   table.title = "Test Results"
   table.header("Test", "reference score", "new score", "delta")
 
-  for key, value in results.items():
+  for key, value in sorted_results_items:
     def ResultStr(value):
       # format result to string
       if value["result"] == "success":
