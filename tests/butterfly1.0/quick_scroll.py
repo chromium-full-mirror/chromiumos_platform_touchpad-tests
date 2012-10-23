@@ -1,0 +1,20 @@
+# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+from fuzzy_check import FuzzyCheck
+from validators import *
+
+# originally generated gestures:
+# Scroll d=772 x=0 y=772 r=0.00
+#   Fling d=89279 x=0 y=89279 r=0.00
+
+def Validate(raw, events, gestures):
+  fuzzy = FuzzyCheck()
+  fuzzy.expected = [
+    ScrollValidator("== 772 ~ 700"),
+    FlingValidator("== 89279 ~ 10000"),
+  ]
+  fuzzy.unexpected = [
+    FlingStopValidator("<10"),
+  ]
+  return fuzzy.Check(gestures)

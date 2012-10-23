@@ -13,6 +13,8 @@
 		"Box Width": 1.0,
 		"Sensor Jump Filter Enable": 1,
 		"Merge Max Ratio": 0.63,
-		"Split Merge Max Movement": 7.1
+		"Split Merge Max Movement": 7.1,
+		"Max Allowed Pressure Change Per Sec": 4000.0,
+		"Max Hysteresis Pressure Per Sec": 4000.0
 	}
 }

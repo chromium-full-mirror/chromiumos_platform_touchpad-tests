@@ -11,8 +11,8 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    ScrollValidator("== 2693 ~ 2000"),
-    FlingValidator("== 13106 ~ 10000"),
+    ScrollValidator("== 2746 ~ 2000"),
+    FlingValidator("== 11537 ~ 10000"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),
