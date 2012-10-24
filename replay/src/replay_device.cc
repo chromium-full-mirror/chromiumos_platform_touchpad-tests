@@ -4,6 +4,7 @@
 
 #include <replay_device.h>
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 
@@ -57,7 +58,7 @@ void ReplayDevice::ReplayEvents(GenericIStream* stream) {
   }
 
   // handle remaining timers.
-  RunTimer(true);
+  RunTimer(INFINITY);
 
   Log(ReplayDeviceConfig::kLogActivity, interpreter_->EncodeActivityLog());
 }
@@ -87,8 +88,9 @@ void ReplayDevice::LogAll(ReplayDeviceConfig::LogCategory category,
 
 void ReplayDevice::SynCallback(EventStatePtr evstate, struct timeval* timeval) {
   current_state_ = evstate;
-  current_time_ = StimeFromTimeval(timeval);
-  RunTimer(false);
+  stime_t next_event = StimeFromTimeval(timeval);
+  RunTimer(next_event);
+  current_time_ = next_event;
   evdev_gesture_->PushEventState(evstate, timeval);
 }
 
@@ -142,11 +144,9 @@ void ReplayDevice::SetFakeTimer(stime_t time, GesturesTimerCallback callback,
   timer_callback_udata_ = callback_udata;
 }
 
-void ReplayDevice::RunTimer(bool update_current_time) {
-  while (timer_callback_ && (current_time_ > timer_target_time_ ||
-                             update_current_time)) {
-    if (update_current_time)
-      current_time_ = timer_target_time_;
+void ReplayDevice::RunTimer(stime_t next_event) {
+  while (timer_callback_ && (timer_target_time_ < next_event)) {
+    current_time_ = timer_target_time_;
     GesturesTimerCallback callback = timer_callback_;
     timer_callback_ = NULL;
 

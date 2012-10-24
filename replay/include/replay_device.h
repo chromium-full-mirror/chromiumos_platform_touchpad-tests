@@ -94,10 +94,9 @@ class ReplayDevice {
 
   // Plays through the fake timer 0 or more times (maybe > 1 b/c a timer
   // callback may request another callback) until there are no more timer
-  // requests or they advance to current_time_ or further.
-  // If update_current_time is set, current_time_ will be updated along
-  // with the new timer callbacks.
-  void RunTimer(bool update_current_time);
+  // requests or they advance to next_event or further.
+  // current_time_ will be updated as timer events happen.
+  void RunTimer(stime_t next_event);
 
   // Static method to access a device of a specific ID.
   static ReplayDevice* GetDevice(size_t id);
