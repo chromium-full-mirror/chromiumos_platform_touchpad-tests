@@ -68,6 +68,10 @@ void EvdevGesture::PushEventState(EventStatePtr evstate, struct timeval* tv) {
   hwstate.touch_cnt = Event_Get_Touch_Count(evdev_);
   hwstate.finger_cnt = current;
   hwstate.fingers = fingers_;
+  hwstate.rel_x = evstate->rel_x;
+  hwstate.rel_y = evstate->rel_y;
+  hwstate.rel_wheel = evstate->rel_wheel;
+  hwstate.rel_hwheel = evstate->rel_hwheel;
   GestureInterpreterPushHardwareState(interpreter_, &hwstate);
 }
 
