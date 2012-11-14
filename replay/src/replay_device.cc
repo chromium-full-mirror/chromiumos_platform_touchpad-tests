@@ -33,6 +33,8 @@ ReplayDevice::ReplayDevice(ReplayDeviceConfig* config)
   interpreter_->SetPropProvider(&CPropProvider, &properties_);
   evdev_gesture_ = new EvdevGesture(evdev_device_, interpreter_);
 
+  interpreter_->Initialize();
+
   // load properties from properties file
   if (config->properties.Good()) {
     if (!properties_.Load(&config->properties)) {
