@@ -30,7 +30,7 @@ class Trimmer {
 
   // Writes a single input event to the output stream
   void WriteEvent(GenericOStream* out, struct timeval& time, __u16 type,
-                  __u16 code, __u32 value);
+                  __u16 code, __s32 value);
 
   ReplayDevice* replay_;
 };

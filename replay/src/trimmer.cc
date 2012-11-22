@@ -16,7 +16,7 @@ Trimmer::Trimmer(ReplayDevice* replay)
 }
 
 void Trimmer::WriteEvent(GenericOStream* out, struct timeval& time, __u16 type,
-                         __u16 code, __u32 value) {
+                         __u16 code, __s32 value) {
   input_event event = { time, type, code, value };
   evemu::EvemuDevice::WriteEvent(out->GetStream(), event);
 }
