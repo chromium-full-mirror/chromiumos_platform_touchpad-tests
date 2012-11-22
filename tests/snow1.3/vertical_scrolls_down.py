@@ -25,7 +25,7 @@ def Validate(raw, events, gestures):
     ScrollValidator("== 1153 ~ 1000"),
     FlingValidator("== 622 ~ 600"),
     # The two scrolls get combined by the test framework:
-    ScrollValidator("== 1210 ~ 1200"),
+    ScrollValidator("== 1210 ~ 1200", merge=True),
     FlingValidator("== 3371 ~ 3000"),
   ]
   fuzzy.unexpected = [

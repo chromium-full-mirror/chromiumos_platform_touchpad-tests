@@ -134,7 +134,7 @@ class AbstractAxisValidator(AbstractValidator):
   be validateValidated.
   """
   def __init__(self, d=None, x=None, y=None, start=None, end=None,
-               roughness=None):
+               roughness=None, merge=False):
     AbstractValidator.__init__(self, start, end)
     if d:
       self._distance_check = FuzzyComparator(d)
@@ -159,9 +159,14 @@ class AbstractAxisValidator(AbstractValidator):
     self._y = 0
     self._roughnesses = []
     self._UpdateScore()
+    self.end = -1.0
+    self.merge = merge
 
   def Accept(self, event):
-    return event.type == self.event_type
+    return (event.type == self.event_type and
+            ((float(event.start) - self.end) < 0.1 or
+             self.end < 0.0 or
+             self.merge))
 
   def _UpdateScore(self):
     self.score = 1
@@ -185,6 +190,7 @@ class AbstractAxisValidator(AbstractValidator):
     self._y = self._y + event.dy
     self._ValidateTimestamps(event)
     self._UpdateScore()
+    self.end = float(event.end)
 
   def TypeString(self):
     return self.event_type

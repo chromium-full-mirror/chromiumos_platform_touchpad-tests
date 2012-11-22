@@ -22,8 +22,8 @@ def Validate(raw, events, gestures):
     FlingStopValidator(1),
   ]
   fuzzy.unexpected = [
-    MotionValidator("<10"),
+    MotionValidator("<10", merge=True),
     FlingStopValidator("<10"),
-    ScrollValidator()
+    ScrollValidator(merge=True)
   ]
   return fuzzy.Check(gestures)
