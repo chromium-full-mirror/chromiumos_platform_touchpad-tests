@@ -55,6 +55,10 @@ class GestureLog(object):
         events.append(ScrollGesture(gesture["dx"], gesture["dy"], start_time,
                                     end_time))
 
+      elif gesture["gestureType"] == "swipe":
+        events.append(SwipeGesture(gesture["dx"], gesture["dy"], start_time,
+                                   end_time))
+
       elif gesture["gestureType"] == "fling":
         if gesture["vx"] + gesture["vy"] == 0:
           events.append(FlingStopGesture(start_time, end_time))
@@ -73,7 +77,8 @@ class GestureLog(object):
 
     for event in event_list:
       # merge motion and scroll events into gestures
-      if event.type == "Motion" or event.type == "Scroll":
+      if (event.type == "Motion" or event.type == "Scroll" or
+          event.type == "Swipe"):
         if event.type not in last_event_of_type:
           last_event_of_type[event.type] = event
           gestures.append(event)
@@ -196,6 +201,13 @@ class ScrollGesture(MotionGesture):
   The scroll gesture is functionally the same as the MotionGesture
   """
   type = "Scroll"
+
+
+class SwipeGesture(MotionGesture):
+  """
+  The swipe gesture is functionally the same as the MotionGesture
+  """
+  type = "Swipe"
 
 
 class FlingGesture(MotionGesture):

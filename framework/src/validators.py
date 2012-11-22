@@ -218,6 +218,10 @@ class ScrollValidator(AbstractAxisValidator):
   event_type = "Scroll"
 
 
+class SwipeValidator(AbstractAxisValidator):
+  event_type = "Swipe"
+
+
 class MotionValidator(AbstractAxisValidator):
   event_type = "Motion"
 
