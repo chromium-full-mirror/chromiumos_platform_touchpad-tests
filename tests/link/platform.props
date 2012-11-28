@@ -20,7 +20,6 @@
 		"Max Hysteresis Pressure Per Sec": 100000.0,
 		"Two Finger Horizontal Close Distance Thresh": 68.0,
 		"Two Finger Vertical Close Distance Thresh": 40.0,
-		"Two Finger Pressure Diff Thresh": 52.0,
 		"Fling Buffer Suppress Zero Length Scrolls": 1
 	}
 }
