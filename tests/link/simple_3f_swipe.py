@@ -17,10 +17,10 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    SwipeValidator(x="==440 ~ 400"),
-    SwipeValidator(x="==376 ~ 400"),
-    SwipeValidator(y="==386 ~ 400"),
-    SwipeValidator(y="==385 ~ 400"),
+    SwipeValidator(x="==321 ~ 400"),
+    SwipeValidator(x="==235 ~ 400"),
+    SwipeValidator(y="==316 ~ 400"),
+    SwipeValidator(y="==296 ~ 400"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),
