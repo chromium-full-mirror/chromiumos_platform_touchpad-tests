@@ -14,6 +14,7 @@
 		"Pressure Calibration Slope": 1.3219851012421,
 		"Scroll X Out Scale": 0.5,
 		"Scroll Y Out Scale": 0.5,
+		"Tap Minimum Pressure": 21.0,
 		"Touchpad Device Output Bias on X-Axis": 26.68917773528923,
 		"Touchpad Device Output Bias on Y-Axis": 26.68917773528923,
 		"Max Allowed Pressure Change Per Sec": 100000.0,
