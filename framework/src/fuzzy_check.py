@@ -44,9 +44,9 @@ class FuzzyCheck(object):
     # special case for empty event list
     if len(event_list) == 0:
       if len(self.expected) == 0:
-        return 1
+        return 1, "success, no events expected"
       else:
-        return 0
+        return 0, "failure, expected events but nothing happened"
 
     # select first validator
     current_validator = None
@@ -100,8 +100,6 @@ class FuzzyCheck(object):
           current_validator.Validate(event)
           AddRow(event, current_validator)
 
-    print table
-
     # calculate score
     if failed:
       score = False
@@ -122,11 +120,11 @@ class FuzzyCheck(object):
         else:
           score = score * validator.score
 
-    self._PrintScoreTable(score)
+    score_table = self._BuildScoreTable(score)
+    report = str(table)+"\n"+str(score_table)
+    return score, report
 
-    return score
-
-  def _PrintScoreTable(self, overall):
+  def _BuildScoreTable(self, overall):
     table = Table("    ")
     table.title = "Score Breakdown"
 
@@ -140,7 +138,7 @@ class FuzzyCheck(object):
       table.row(validator, validator.score)
 
     table.footer = "overall score: " + str(overall)
-    print table
+    return table
 
 
 ################################################################################
