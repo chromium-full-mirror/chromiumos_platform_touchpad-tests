@@ -7,6 +7,7 @@
 from cStringIO import StringIO
 import fnmatch
 import json
+import multiprocessing
 import os
 import sys
 import traceback
@@ -134,3 +135,24 @@ class TestRunner(object):
       return path.isdir(path.join(self.tests_dir, platform)) and \
              path.exists(path.join(self.tests_dir, platform, "platform.dat"))
     return filter(is_platform, os.listdir(self.tests_dir))
+
+
+def ParallelTestRunnerProcess(case):
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  return (case, runner.RunTest(case))
+
+
+class ParallelTestRunner(TestRunner):
+  def RunAll(self, glob="all"):
+    """
+    Extends TestRunner.RunAll by multiprocessing. The test cases are distributed
+    to as many processes as there are cores available.
+    """
+    pool = multiprocessing.Pool()
+    cases = self.DiscoverTestCases(glob)
+    data = pool.map(ParallelTestRunnerProcess, cases)
+    results = {}
+    for case, result in data:
+      results[case.name] = result
+
+    return results

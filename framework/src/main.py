@@ -14,7 +14,7 @@ import sys
 from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
-from test_runner import TestRunner
+from test_runner import ParallelTestRunner as TestRunner
 from test_verifier import TestVerifier
 
 _help_text = """\
