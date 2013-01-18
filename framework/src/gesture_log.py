@@ -59,6 +59,9 @@ class GestureLog(object):
         events.append(SwipeGesture(gesture["dx"], gesture["dy"], start_time,
                                    end_time))
 
+      elif gesture["gestureType"] == "swipeLift":
+        events.append(SwipeLiftGesture(start_time, end_time))
+
       elif gesture["gestureType"] == "fling":
         if gesture["vx"] + gesture["vy"] == 0:
           events.append(FlingStopGesture(start_time, end_time))
@@ -222,6 +225,22 @@ class FlingStopGesture(object):
   The FlingStop gesture only contains the start and end timestamp.
   """
   type = "FlingStop"
+
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+
+  def __str__(self):
+    return self.__class__.type
+
+  def __repr__(self):
+    return str(self)
+
+class SwipeLiftGesture(object):
+  """
+  The SwipeLift gesture only contains the start and end timestamp.
+  """
+  type = "SwipeLift"
 
   def __init__(self, start, end):
     self.start = start

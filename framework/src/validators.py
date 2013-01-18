@@ -98,6 +98,9 @@ class AbstractCountValidator(AbstractValidator):
 class FlingStopValidator(AbstractCountValidator):
   event_type = "FlingStop"
 
+class SwipeLiftValidator(AbstractCountValidator):
+  event_type = "SwipeLift"
+
 
 class AbstractButtonValidator(AbstractCountValidator):
   """
