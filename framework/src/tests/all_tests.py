@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -11,6 +11,7 @@ from gesture_log_tests import GestureLogTests
 from test_case_tests import TestCaseTests
 from test_factory_tests import TestFactoryTests
 from test_runner_tests import TestRunnerTests
+from xorg_parser_tests import XorgParserTests
 import unittest
 
 if __name__ == '__main__':
