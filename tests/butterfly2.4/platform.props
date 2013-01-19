@@ -12,8 +12,11 @@
 		"Pressure Calibration Slope": 3.95266938056467,
 		"Box Width": 1.0,
 		"Sensor Jump Filter Enable": 1,
-		"Sensor Jump Min Dist Move": 0.6,
+		"Sensor Jump Min Dist Move": 0.9,
 		"Max Allowed Pressure Change Per Sec": 4000.0,
-		"Max Hysteresis Pressure Per Sec": 4000.0
+		"Max Hysteresis Pressure Per Sec": 4000.0,
+		"Input Queue Max Delay": 0.02,
+		"Delay On Possible Liftoff": 1,
+		"Palm Pressure": 290.0
 	}
 }
