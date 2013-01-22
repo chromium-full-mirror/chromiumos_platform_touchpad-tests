@@ -101,6 +101,7 @@ def Run(glob, out_file=None, ref_file=None):
   table.title = "Test Results"
   table.header("Test", "reference score", "new score", "delta")
 
+  regression = False
   for key, value in sorted_results_items:
     def ResultStr(value):
       # format result to string
@@ -112,7 +113,6 @@ def Run(glob, out_file=None, ref_file=None):
     # format reference and delta column
     ref_score = ""
     delta_str = ""
-    regression = False
     if key in ref:
       ref_score = ResultStr(ref[key])
       delta = value["score"] - ref[key]["score"]
