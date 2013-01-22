@@ -7,6 +7,7 @@
 # information.
 from gesture_log import GestureLog
 from os import path
+from xorg_parser import XorgInputClassParser
 import fnmatch
 import imp
 import json
@@ -16,6 +17,10 @@ import traceback
 class TestCase(object):
   """
   The TestCase class is constructed with test name and a tests directory.
+  In order to automatically load properties from xorg config files, the
+  xorg_conf_path argument has to be set to the path of the folder containing
+  the chromeos xorg configuration files.
+
   Tests have multiple files associated with them and these file paths are
   determined using the convention over configuration paradigm:
 
@@ -48,8 +53,10 @@ class TestCase(object):
   _platform_props = "platform.props"
   _common_folder = "common"
 
-  def __init__(self, tests_dir, log_file_or_name):
-    self.tests_path = tests_dir
+  def __init__(self, tests_path, log_file_or_name, xorg_conf_path=None):
+    self.tests_path = tests_path
+    self.xorg_conf_path = xorg_conf_path
+    self.xorg_parser = XorgInputClassParser()
 
     if not log_file_or_name.endswith(".log"):
       log_file = log_file_or_name + ".log"
@@ -148,9 +155,27 @@ class TestCase(object):
 
   def _LoadProperties(self):
     self.properties = { "gestures": {}, "validator": {}}
+    self._LoadXOrgConfigProperties(self._PlatformFile("platform.props"))
     self._LoadPropertiesFile(self._PlatformFile("platform.props"))
     self._LoadPropertiesFile(self._CommonFile(".props"))
     self._LoadPropertiesFile(self._TestCaseFile(".props"))
+
+  def _LoadXOrgConfigProperties(self, file):
+    if not path.exists(file):
+      return
+    data = json.load(open(file, "r"))
+    if self.xorg_conf_path and "xorg" in data and "file" in data["xorg"]:
+      # TODO(denniskempin): error handling in general. Don't use exceptions
+      # checking user provided data.
+      filename = os.path.join(self.xorg_conf_path, data["xorg"]["file"])
+      input_classes = self.xorg_parser.Parse(file=filename)
+      if "identifier" in data["xorg"]:
+        properties = input_classes[data["xorg"]["identifier"]]
+        self.properties["gestures"].update(properties)
+      if "identifiers" in data["xorg"]:
+        for identifier in data["xorg"]["identifiers"]:
+          properties = input_classes[identifier]
+          self.properties["gestures"].update(properties)
 
   def _LoadPropertiesFile(self, file):
     if not path.exists(file):

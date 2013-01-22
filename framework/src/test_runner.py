@@ -23,9 +23,10 @@ class TestRunner(object):
   All test results are returned in a result structure containing logs,
   validation results, errors, the generated gestures and the final score.
   """
-  def __init__(self, tests_dir, replay_tool):
+  def __init__(self, tests_dir, replay_tool, xorg_conf_path=None):
     self.tests_dir = tests_dir
     self.replay_tool = replay_tool
+    self.xorg_conf_path = xorg_conf_path
 
   def RunTest(self, test_case):
     """
@@ -122,7 +123,9 @@ class TestRunner(object):
     for platform in self._DiscoverPlatforms():
       files = ListDirRecursive(self.tests_dir, platform)
       log_files = fnmatch.filter(files, "*.log")
-      test_cases = map(lambda f: TestCase(self.tests_dir, f), log_files)
+      test_cases = map(lambda f: TestCase(self.tests_dir, f,
+                                          self.xorg_conf_path),
+                       log_files)
       all_cases.extend(test_cases)
 
     if glob is not None and glob != "all":

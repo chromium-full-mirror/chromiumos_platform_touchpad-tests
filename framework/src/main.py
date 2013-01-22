@@ -71,7 +71,8 @@ def HelpExit():
 def Verify(device, glob):
   verifier = TestVerifier(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
                           device)
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
+                      os.environ["XORG_CONF_DIR"])
   cases = runner.DiscoverTestCases(glob)
 
   for case in cases:
@@ -81,7 +82,8 @@ def Verify(device, glob):
 
 def Run(glob, out_file=None, ref_file=None):
   print "Running tests..."
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
+                      os.environ["XORG_CONF_DIR"])
   results = runner.RunAll(glob)
 
   # print reports
@@ -143,7 +145,8 @@ def Get(test_name, what, file=None):
     data = json.load(open(file))
     results = data[test_name]
   else:
-    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
+                      os.environ["XORG_CONF_DIR"])
     data = runner.RunAll(test_name)
     results = data[test_name]
 
