@@ -4,6 +4,7 @@
 
 DESTDIR ?= target
 LOCALDESTDIR=$(shell readlink -f local-install)
+XORG_CONF_DIR=/etc/X11/xorg.conf.d/
 
 all: replay framework
 
@@ -36,14 +37,22 @@ install:
 				\*/:\* \) -exec install -D -m 0755 \{\} $(DESTDIR)/\{\} \; ; \
 	done
 
+	mkdir -p $(DESTDIR)/xorg-conf-files/
+	for xorgfile in $(XORG_CONF_DIR)/* ; do \
+		install -D $$xorgfile \
+			$(DESTDIR)/xorg-conf-files/$(shell basename $$xorgfile); \
+	done
+
 local-install:
 	# install script locally. Create local-install folder with links to
 	# original folders. So there is no need to reinstall after changes.
 	install -D touchtests $(LOCALDESTDIR)/touchtests
 
+	ln -sf $(shell readlink -f $(XORG_CONF_DIR) local-install/xorg-conf-files
 	ln -sf ../framework/src local-install/framework
 	ln -sf ../replay/build/replay local-install/replay
 	ln -sf ../tests local-install/tests
 	ln -sf $(LOCALDESTDIR)/touchtests /usr/bin/touchtests
+
 
 .PHONY: all clean replay framework tests install local-install
