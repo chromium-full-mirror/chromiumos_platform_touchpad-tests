@@ -19,8 +19,6 @@
 		"Touchpad Device Output Bias on Y-Axis": 26.68917773528923,
 		"Max Allowed Pressure Change Per Sec": 100000.0,
 		"Max Hysteresis Pressure Per Sec": 100000.0,
-		"Two Finger Horizontal Close Distance Thresh": 68.0,
-		"Two Finger Vertical Close Distance Thresh": 40.0,
 		"Fling Buffer Suppress Zero Length Scrolls": 1,
 		"Box Width": 0.3
 	}
