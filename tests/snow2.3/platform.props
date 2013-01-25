@@ -18,6 +18,7 @@
 		"Split Merge Max Movement": 6.5,
 		"Merge Max Ratio": 0.5,
 		"Max Allowed Pressure Change Per Sec": 4000.0,
-		"Max Hysteresis Pressure Per Sec": 4000.0
+		"Max Hysteresis Pressure Per Sec": 4000.0,
+		"Zero Finger Click Enable": 0
 	}
 }

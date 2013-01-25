@@ -20,6 +20,7 @@
 		"Max Allowed Pressure Change Per Sec": 100000.0,
 		"Max Hysteresis Pressure Per Sec": 100000.0,
 		"Fling Buffer Suppress Zero Length Scrolls": 1,
-		"Box Width": 0.3
+		"Box Width": 0.3,
+		"Zero Finger Click Enable": 0
 	}
 }
