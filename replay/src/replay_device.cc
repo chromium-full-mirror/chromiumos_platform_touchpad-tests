@@ -133,6 +133,9 @@ void ReplayDevice::GestureCallback(const struct Gesture* gesture) {
     case kGestureTypePinch:
       stream << "Pinch dz=" << gesture->details.pinch.dz;
       break;
+    case kGestureTypeSwipeLift:
+      stream << "Swipe Lift";
+      break;
     }
     stream << std::endl;
     stream << "----------------------------------------"
