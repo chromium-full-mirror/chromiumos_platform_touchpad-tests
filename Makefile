@@ -48,7 +48,7 @@ local-install:
 	# original folders. So there is no need to reinstall after changes.
 	install -D touchtests $(LOCALDESTDIR)/touchtests
 
-	ln -sf $(shell readlink -f $(XORG_CONF_DIR) local-install/xorg-conf-files
+	ln -sf $(shell readlink -f $(XORG_CONF_DIR)) local-install/xorg-conf-files
 	ln -sf ../framework/src local-install/framework
 	ln -sf ../replay/build/replay local-install/replay
 	ln -sf ../tests local-install/tests
