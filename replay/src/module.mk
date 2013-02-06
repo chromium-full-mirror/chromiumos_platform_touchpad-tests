@@ -13,7 +13,7 @@ PC_LIBS := $(shell $(PKG_CONFIG) --libs $(PC_DEPS))
 
 # global flags
 CPPFLAGS += -I$(SRC)/include -fvisibility=default $(PC_CFLAGS)
-LDFLAGS += -levdev_hollow -lutouch-evemu -lgestures -lglib-2.0 $(PC_LIBS)
+LDLIBS += -levdev_hollow -lutouch-evemu -lgestures -lglib-2.0 $(PC_LIBS)
 
 common_OBJS = src/evdev_gestures.o \
 	src/evemu_device.o \
