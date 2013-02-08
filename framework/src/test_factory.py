@@ -6,13 +6,12 @@
 # an activity and cmt log.
 
 from gesture_log import GestureLog
-from replay import Replay
+from mtlib.replay import Replay
 from test_case import TestCase
 import decimal
 import json
 import math
 import os
-import replay
 
 new_test_template = """\
 # Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
@@ -54,9 +53,8 @@ class TestFactory(object):
     "Sensitivity"
   ]
 
-  def __init__(self, tests_dir, replay_tool):
+  def __init__(self, tests_dir):
     self.tests_dir = tests_dir
-    self.replay_tool = replay_tool
 
   def _ValidateGestures(self, replay_log, original_log):
     if len(replay_log.gestures) != len(original_log.gestures):
@@ -97,11 +95,11 @@ class TestFactory(object):
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
     # trim event log file
-    replay = Replay(case.platform_dat_file, self.replay_tool)
+    replay = Replay(case.platform_dat_file)
     replay.Trim(cmt_file, case.log_file, trim_from, trim_to)
 
     properties_str = json.dumps(case.gesture_props)
-    replay = Replay(case.platform_dat_file, self.replay_tool)
+    replay = Replay(case.platform_dat_file)
     replay_data = replay.Replay(case.log_file, properties_str, True)
     replay_log = GestureLog(replay_data)
 

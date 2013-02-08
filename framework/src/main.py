@@ -15,7 +15,6 @@ from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
 from test_runner import ParallelTestRunner as TestRunner
-from test_verifier import TestVerifier
 
 _help_text = """\
 Available Commands:
@@ -69,10 +68,8 @@ def HelpExit():
   exit()
 
 def Verify(device, glob):
-  verifier = TestVerifier(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
-                          device)
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
-                      os.environ["XORG_CONF_DIR"])
+  verifier = TestVerifier(os.environ["TESTS_DIR"], device)
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   cases = runner.DiscoverTestCases(glob)
 
   for case in cases:
@@ -82,8 +79,7 @@ def Verify(device, glob):
 
 def Run(glob, out_file=None, ref_file=None):
   print "Running tests..."
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
-                      os.environ["XORG_CONF_DIR"])
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   results = runner.RunAll(glob)
 
   # print reports
@@ -145,8 +141,7 @@ def Get(test_name, what, file=None):
     data = json.load(open(file))
     results = data[test_name]
   else:
-    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"],
-                      os.environ["XORG_CONF_DIR"])
+    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
     data = runner.RunAll(test_name)
     results = data[test_name]
 
@@ -166,7 +161,7 @@ def Add(testname, activity_log, event_log):
   Adds a new test case.
   """
   # determine test name from activity_log name
-  factory = TestFactory(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  factory = TestFactory(os.environ["TESTS_DIR"])
   case = factory.CreateTest(testname, activity_log, event_log)
 
   print "Test \"" + case.name + "\" created"
@@ -181,12 +176,7 @@ def Main():
     print "Require TESTS_DIR environment variable"
     exit(-1)
 
-  if "REPLAY_TOOL" not in os.environ:
-    print "Require REPLAY_TOOL environment variable"
-    exit(-1)
-
   TestCase.tests_path = os.environ["TESTS_DIR"]
-  TestCase.replay_tool = os.environ["REPLAY_TOOL"]
 
   # parse arguments and call command methods
   if len(sys.argv) < 2:

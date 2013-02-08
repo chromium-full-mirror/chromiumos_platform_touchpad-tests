@@ -5,6 +5,8 @@
 # This module provides the TestVerifier class which is used to verify that
 # replay is working correctly by comparing the simulated replay with a replay
 # through the actual kernel device on the target machine.
+#
+# This module is DEPRECATED!
 
 from replay import Replay
 from test_case import TestCase

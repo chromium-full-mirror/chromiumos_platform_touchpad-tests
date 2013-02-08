@@ -13,8 +13,8 @@ import sys
 import traceback
 
 from gesture_log import GestureLog
+from mtlib.replay import Replay
 from os import path
-from replay import Replay
 from test_case import TestCase
 
 class TestRunner(object):
@@ -23,9 +23,8 @@ class TestRunner(object):
   All test results are returned in a result structure containing logs,
   validation results, errors, the generated gestures and the final score.
   """
-  def __init__(self, tests_dir, replay_tool, xorg_conf_path=None):
+  def __init__(self, tests_dir, xorg_conf_path=None):
     self.tests_dir = tests_dir
-    self.replay_tool = replay_tool
     self.xorg_conf_path = xorg_conf_path
 
   def RunTest(self, test_case):
@@ -71,7 +70,7 @@ class TestRunner(object):
 
     try:
       properties = json.dumps(test_case.gesture_props)
-      replay = Replay(test_case.platform_dat_file, self.replay_tool)
+      replay = Replay(test_case.platform_dat_file)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))
 
       score, validation_log = test_case.module.Validate(log.raw,
@@ -141,7 +140,7 @@ class TestRunner(object):
 
 
 def ParallelTestRunnerProcess(case):
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["REPLAY_TOOL"])
+  runner = TestRunner(os.environ["TESTS_DIR"])
   return (case, runner.RunTest(case))
 
 
