@@ -1,19 +1,12 @@
 {
 	"gestures": {
-		"IIR b0": 1,
-		"IIR b1": 0,
-		"IIR b2": 0,
-		"IIR b3": 0,
-		"IIR a1": 0,
-		"IIR a2": 0,
-		"IIR Distance Threshold": 1000,
-		"Input Queue Delay": 0,
 		"Pressure Calibration Offset": -4.09267447213274,
 		"Pressure Calibration Slope": 4.16407967978032,
-		"Box Width": 1.0,
 		"Sensor Jump Filter Enable": 1,
-		"Sensor Jump Min Dist Move": 0.6,
-		"Max Allowed Pressure Change Per Sec": 4000.0,
-		"Max Hysteresis Pressure Per Sec": 4000.0
+		"Sensor Jump Min Dist Move": 0.6
+	},
+	"xorg": {
+		"file": "50-touchpad-cmt-butterfly.conf",
+		"identifiers": ["touchpad butterfly", "touchpad butterfly cyapa"]
 	}
 }

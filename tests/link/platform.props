@@ -1,26 +1,12 @@
 {
 	"gestures": {
-		"IIR b0": 1,
-		"IIR b1": 0,
-		"IIR b2": 0,
-		"IIR b3": 0,
-		"IIR a1": 0,
-		"IIR a2": 0,
-		"IIR Distance Threshold": 1000,
-		"Input Queue Delay": 0,
 		"Point X Out Scale": 2.0,
 		"Point Y Out Scale": 2.0,
-		"Pressure Calibration Offset": -15.369282490859,
-		"Pressure Calibration Slope": 1.3219851012421,
 		"Scroll X Out Scale": 0.5,
-		"Scroll Y Out Scale": 0.5,
-		"Tap Minimum Pressure": 21.0,
-		"Touchpad Device Output Bias on X-Axis": 26.68917773528923,
-		"Touchpad Device Output Bias on Y-Axis": 26.68917773528923,
-		"Max Allowed Pressure Change Per Sec": 100000.0,
-		"Max Hysteresis Pressure Per Sec": 100000.0,
-		"Fling Buffer Suppress Zero Length Scrolls": 1,
-		"Box Width": 0.3,
-		"Zero Finger Click Enable": 0
+		"Scroll Y Out Scale": 0.5
+	},
+	"xorg": {
+		"file": "50-touchpad-cmt-link.conf",
+		"identifiers": ["touchpad link", "touchpad link atmel"]
 	}
 }

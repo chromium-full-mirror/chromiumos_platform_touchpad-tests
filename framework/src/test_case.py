@@ -57,6 +57,7 @@ class TestCase(object):
     self.tests_path = tests_path
     self.xorg_conf_path = xorg_conf_path
     self.xorg_parser = XorgInputClassParser()
+    self.ignore_properties = []
 
     if not log_file_or_name.endswith(".log"):
       log_file = log_file_or_name + ".log"
@@ -159,6 +160,12 @@ class TestCase(object):
     self._LoadPropertiesFile(self._PlatformFile("platform.props"))
     self._LoadPropertiesFile(self._CommonFile(".props"))
     self._LoadPropertiesFile(self._TestCaseFile(".props"))
+    self._ApplyIgnoreProperties()
+
+  def _ApplyIgnoreProperties(self):
+    for key in self.ignore_properties:
+      if key in self.properties["gestures"]:
+        del self.properties["gestures"][key]
 
   def _LoadXOrgConfigProperties(self, file):
     if not path.exists(file):
@@ -185,7 +192,8 @@ class TestCase(object):
       self.properties["gestures"].update(data["gestures"])
     if "validator" in data:
       self.properties["validator"].update(data["validator"])
-
+    if "ignore" in data:
+      self.ignore_properties.extend(data["ignore"])
 
   def _TestCaseFile(self, extension):
     return os.path.join(self.tests_path, *self.path) + extension

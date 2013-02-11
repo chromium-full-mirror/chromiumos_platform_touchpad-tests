@@ -1,22 +1,13 @@
 {
 	"gestures": {
-		"IIR b0": 1,
-		"IIR b1": 0,
-		"IIR b2": 0,
-		"IIR b3": 0,
-		"IIR a1": 0,
-		"IIR a2": 0,
-		"IIR Distance Threshold": 1000,
-		"Input Queue Delay": 0,
 		"Pressure Calibration Offset": -6.91735322550015,
 		"Pressure Calibration Slope": 1.84293108692446,
-		"Box Width": 1.0,
-		"Sensor Jump Filter Enable": 1,
-		"Sensor Jump Min Dist Non-Move": 0.3,
-		"Sensor Jump Min Dist Move": 0.9,
-		"Sensor Jump Similar Multiplier Move": 1.5,
-		"Split Merge Max Movement": 6.5,
-		"Merge Max Ratio": 0.5,
-		"Tap Minimum Pressure": 13.0
+		"Tap Minimum Pressure": 13.0,
+		"Max Allowed Pressure Change Per Sec": 800,
+		"Max Hysteresis Pressure Per Sec": 600
+	},
+	"xorg": {
+		"file": "50-touchpad-cmt-daisy.conf",
+		"identifiers": ["touchpad daisy"]
 	}
 }
