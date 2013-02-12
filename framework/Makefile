@@ -11,7 +11,6 @@ install:
 	install -D -m 0755 src/fuzzy_check.py  $(DESTDIR)/framework/fuzzy_check.py
 	install -D -m 0755 src/gesture_log.py  $(DESTDIR)/framework/gesture_log.py
 	install -D -m 0755 src/main.py         $(DESTDIR)/framework/main.py
-	install -D -m 0755 src/replay.py       $(DESTDIR)/framework/replay.py
 	install -D -m 0755 src/table.py        $(DESTDIR)/framework/table.py
 	install -D -m 0755 src/validators.py   $(DESTDIR)/framework/validators.py
 	install -D -m 0755 src/test_case.py    $(DESTDIR)/framework/test_case.py
@@ -19,3 +18,5 @@ install:
 	install -D -m 0755 src/test_runner.py  $(DESTDIR)/framework/test_runner.py
 	install -D -m 0755 src/test_verifier.py \
 	                   $(DESTDIR)/framework/test_verifier.py
+	install -D -m 0755 src/xorg_parser.py \
+	                   $(DESTDIR)/framework/xorg_parser.py

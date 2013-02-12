@@ -4,34 +4,27 @@
 
 DESTDIR ?= target
 LOCALDESTDIR=$(shell readlink -f local-install)
-XORG_CONF_DIR=/etc/X11/xorg.conf.d/
+OVERLAY=../../third_party/chromiumos-overlay/
+XORG_CONF_DIR=../xorg-conf
 
-all: replay framework
+all: framework
 
 clean:
-	OUT=build make -C replay clean
 	make -C framework clean
-
-replay:
-	OUT=build make -C replay all
 
 framework:
 	make -C framework all
 
 tests:
-	OUT=build make -C replay tests
 	make -C framework tests
 
 install:
 	mkdir -p $(DESTDIR)
-	DESTDIR=$(shell readlink -f $(DESTDIR)) OUT=build make -C replay install
 	DESTDIR=$(shell readlink -f $(DESTDIR)) make -C framework install
 
 	install -D touchtests $(DESTDIR)/touchtests
 
 	# for each filetype in tests folder
-	# install all files of this type. Ignore paths with . or : in them
-
 	for extension in dat props log py ; do \
 		find tests \( -iname \*.$$extension ! -wholename \*/.\* ! -wholename \
 				\*/:\* \) -exec install -D -m 0755 \{\} $(DESTDIR)/\{\} \; ; \
@@ -48,11 +41,10 @@ local-install:
 	# original folders. So there is no need to reinstall after changes.
 	install -D touchtests $(LOCALDESTDIR)/touchtests
 
-	ln -sf $(shell readlink -f $(XORG_CONF_DIR)) local-install/xorg-conf-files
-	ln -sf ../framework/src local-install/framework
-	ln -sf ../replay/build/replay local-install/replay
-	ln -sf ../tests local-install/tests
+	ln -sfn $(shell readlink -f $(XORG_CONF_DIR)) local-install/xorg-conf-files
+	ln -sfn ../framework/src local-install/framework
+	ln -sfn ../tests local-install/tests
 	ln -sf $(LOCALDESTDIR)/touchtests /usr/bin/touchtests
 
 
-.PHONY: all clean replay framework tests install local-install
+.PHONY: all clean framework tests install local-install
