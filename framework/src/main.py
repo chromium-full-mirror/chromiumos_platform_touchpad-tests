@@ -4,12 +4,17 @@
 #
 # This module is the main module for the console interface. It takes care
 # of parsing the command line arguments and formating the output
+from optparse import OptionParser
 from os import path
+from tempfile import NamedTemporaryFile
 import json
 import math
 import os
 import pprint
 import sys
+
+from mtedit.editor import LogEditor
+from mtedit.log import Log
 
 from table import Table
 from test_case import TestCase
@@ -17,24 +22,35 @@ from test_factory import TestFactory
 from test_runner import ParallelTestRunner as TestRunner
 
 _help_text = """\
-Available Commands:
--------------------
-$ touchtests run [all|testname]
-Executes tests. Either all of them and presents a resulting overall score.
-Or just a single named test.
+Multitouch Regression Test Suite:
+---------------------------------
 
-$ touchtests get [--from filename] gestures-log|evdev-log|activity-log testname
-Runs a test and prints the requested log of a specific test. In case the
---from option is used, the test will not be run, but the log will be loaded from
-the test results stored in file at 'filename'.
+$ %prog [all|glob]
+Executes tests. Either all of them or selected tests by providing a glob match
+In order to test for regressions use:
+$ %prog all --out filename
+make a change
+$ %prog all --ref filename
+Which will display the changes in test results compared to before the change
 
-$ touchtests add [name] [activity_log] [cmt_log]
-Adds a new test case. The name has to include the platform and can optionally
-specify a subfolder where the test should be stored.
-activity_log and cmt_log should point to the file names of log files collected
-from the device.
-You can trim activity_log in tp_view, touchtests will automatically trim the
-cmt_log accordingly.
+$ %prog testname -v %info%
+Run test and display information. %info% can be:
+- a or activity: to view the touchpad activity in mtedit
+- g or gestures: to view the generated gestures
+- al or activity-log: to view the generated activity log
+- gl or gestures-log: to view the generated gestures log
+- el or evdev-log: to view the generated evdev log
+
+$ %prog test_name -c %source%
+Create a new test case from %source%. Source can be:
+- A feedback URL
+- A device IP
+- The path to an activity log file
+When using a file name test.log, %prog will look at test.log.evdev
+for the evdev log file. You can optionally supply -e to override this path.
+%prog will display an URL where you can trim the log file, the trimmed
+log file will then be used to create the new test case. Specify --no-edit in
+case you do not want to use the original files without trimming.
 
 General Info:
 -------------
@@ -58,14 +74,6 @@ on the target platform:
 $ gmerge utouch-evemu
 $ evemu-describe /path/to/device > platform.dat
 """
-
-
-def HelpExit():
-  """
-  Print help text and exit
-  """
-  print _help_text
-  exit()
 
 def Verify(device, glob):
   verifier = TestVerifier(os.environ["TESTS_DIR"], device)
@@ -155,6 +163,8 @@ def Get(test_name, what, file=None):
     print results["gestures"]
   elif what == "events":
     print results["events"]
+  elif what == "return-activity":
+    return results["logs"]["activity"]
 
 def Add(testname, activity_log, event_log):
   """
@@ -178,59 +188,94 @@ def Main():
 
   TestCase.tests_path = os.environ["TESTS_DIR"]
 
-  # parse arguments and call command methods
-  if len(sys.argv) < 2:
-    HelpExit()
+  parser = OptionParser(usage=_help_text)
+  parser.add_option("-c", "--create",
+                    dest="create", default=None,
+                    help="create new test case from URL/IP or log file")
+  parser.add_option("-e", "--evdev",
+                    dest="evdev", default=None,
+                    help="path to evdev log for creating a new test")
+  parser.add_option("-v", "--view",
+                    dest="view", default=None,
+                    help="view generated gestures(g), activity in mtedit(a) " +
+                         "gestures-log(gl), evdev-log(el) or activity-log(al)")
+  parser.add_option("-r", "--ref",
+                    dest="ref", default=None,
+                    help="reference test results for detecting regressions")
+  parser.add_option("-o", "--out",
+                    dest="out", default=None,
+                    help="output test results to file.")
+  parser.add_option("-n", "--new",
+                    dest="new", action="store_true", default=False,
+                    help="Create new device logs before downloading. " +
+                         "[Default: False]")
+  parser.add_option("--no-edit",
+                    dest="noedit", action="store_true", default=False,
+                    help="Skip editing when creating tests. Add original log " +
+                         "[Default: False]")
 
-  # call command method according to command line arguments
-  # todo: use an option parser library
-  cmd = sys.argv[1]
+  (options, args) = parser.parse_args()
 
-  if cmd == "run":
-    if len(sys.argv) == 3:
-      test_name = sys.argv[2]
-      Run(test_name)
-    elif len(sys.argv) == 5 and sys.argv[2] == "--out":
-      test_name = sys.argv[4]
-      out = sys.argv[3]
-      Run(test_name, out)
-    elif len(sys.argv) == 5 and sys.argv[2] == "--ref":
-      test_name = sys.argv[4]
-      ref_file = sys.argv[3]
-      Run(test_name, None, ref_file)
+  if len(args) == 0:
+    test_name = "all"
+  elif len(args) == 1:
+    test_name = args[0]
+  else:
+    parser.print_help()
+    exit(-1)
+
+  if options.create:
+    # create temporary files for storing activity and evdev log
+    tmp = NamedTemporaryFile("w")
+    tmp_evdev = NamedTemporaryFile("w")
+
+    # obtain trimmed log data
+    original_log = Log(options.create, options)
+    if options.noedit:
+      log = original_log
     else:
-      HelpExit()
+      editor = LogEditor(persistent=False)
+      log = editor.Edit(original_log)
 
-  elif cmd == "get":
-    if len(sys.argv) == 4:
-      test_name = sys.argv[3]
-      what = sys.argv[2]
-      Get(test_name, what)
-    elif len(sys.argv) == 6 and sys.argv[2] == "--from":
-      test_name = sys.argv[5]
-      what = sys.argv[4]
-      file = sys.argv[3]
-      Get(test_name, what, file)
+    # write to temporary files
+    tmp.write(log.activity)
+    tmp.flush()
+    tmp_evdev.write(log.evdev)
+    tmp_evdev.flush()
+
+    # pass to touchtests
+    Add(test_name, tmp.name, tmp_evdev.name)
+
+    # cleanup
+    tmp.close()
+    tmp_evdev.close()
+
+  elif options.view:
+    view = options.view
+    if view == "g":
+      view = "gestures"
+    elif view == "gl":
+      view = "gestures-log"
+    elif view == "el":
+      view = "evdev-log"
+    elif view == "al":
+      view = "activity-log"
+    elif view == "a":
+      view = "activity"
+
+    if view == "activity":
+      activity = Get(test_name, "return-activity")
+      tmp = NamedTemporaryFile("w")
+      tmp.write(activity)
+      tmp.flush()
+      log = Log(tmp.name, options)
+      editor = LogEditor(persistent=False)
+      editor.View(log)
     else:
-      HelpExit()
-
-  elif cmd == "verify":
-    if len(sys.argv) < 4:
-      HelpExit()
-    device_name = sys.argv[2]
-    test_name = sys.argv[3]
-    Verify(device_name, test_name)
-
-  elif cmd == "add":
-    if len(sys.argv) < 5:
-      HelpExit()
-    testname = sys.argv[2]
-    activity_log = sys.argv[3]
-    event_log = sys.argv[4]
-    Add(testname, activity_log, event_log)
+      Get(test_name, view)
 
   else:
-    HelpExit()
+    Run(test_name, options.out, options.ref)
 
 if __name__ == "__main__":
   Main()
