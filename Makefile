@@ -36,8 +36,10 @@ install:
 			$(DESTDIR)/xorg-conf-files/$(shell basename $$xorgfile); \
 	done
 
-local-install:
-	# install script locally. Create local-install folder with links to
+setup-in-place:
+	OUT=. make -C ../mttools setup-in-place
+
+	# Create local-install folder with links to
 	# original folders. So there is no need to reinstall after changes.
 	install -D touchtests $(LOCALDESTDIR)/touchtests
 
@@ -46,5 +48,10 @@ local-install:
 	ln -sfn ../tests local-install/tests
 	ln -sf $(LOCALDESTDIR)/touchtests /usr/bin/touchtests
 
+in-place:
+	OUT=. make -C ../mttools in-place
+
+clean-in-place:
+	OUT=. make -C ../mttools clean-in-place
 
 .PHONY: all clean framework tests install local-install
