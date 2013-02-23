@@ -68,10 +68,10 @@ class FuzzyCheck(object):
         if validator.Accept(event):
           AddRow(event, validator, True)
           validator.Validate(event)
-          return True
+          return True, "success"
       # no validator found. Fail.
       AddRow(event, "no matching validator")
-      return False
+      return False, "no matching validator"
 
     failed = False
     for event in event_list:
@@ -109,14 +109,14 @@ class FuzzyCheck(object):
       # expected validators score
       for validator in self.expected:
         if validator.score is False:
-          return False
+          return False, "expected validator is false"
         else:
           score = score * validator.score
 
       # unexpected validators score
       for validator in self.unexpected:
         if validator.score is False:
-          return False
+          return False, "unexpected validator is false"
         else:
           score = score * validator.score
 
