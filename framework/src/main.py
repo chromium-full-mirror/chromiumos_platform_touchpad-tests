@@ -173,8 +173,8 @@ def Add(testname, activity_log, event_log):
   # determine test name from activity_log name
   factory = TestFactory(os.environ["TESTS_DIR"])
   case = factory.CreateTest(testname, activity_log, event_log)
-
-  print "Test \"" + case.name + "\" created"
+  if case:
+    print "Test \"" + case.name + "\" created"
 
 def Main():
   """

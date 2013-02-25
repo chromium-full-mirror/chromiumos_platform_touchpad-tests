@@ -75,6 +75,11 @@ class TestFactory(object):
     the validator.
     """
     case = TestCase(self.tests_dir, name)
+
+    if not os.path.exists(case.platform_dat_file):
+      print "Platform does not exist (missing platform.dat)"
+      return None
+
     activity_log = open(activity_file).read()
 
     # make sure the precision is enough
