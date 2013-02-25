@@ -49,6 +49,7 @@ class TestFactory(object):
   """
 
   user_property_names = [
+    "Tap Drag Enable",
     "Tap Enable",
     "Sensitivity"
   ]
