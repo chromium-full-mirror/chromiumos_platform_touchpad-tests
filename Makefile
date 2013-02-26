@@ -5,22 +5,27 @@
 DESTDIR ?= target
 LOCALDESTDIR=$(shell readlink -f local-install)
 OVERLAY=../../third_party/chromiumos-overlay/
-XORG_CONF_DIR=../xorg-conf
+
+ifeq ($(origin SYSROOT), undefined)
+	XORG_CONF_DIR=../xorg-conf
+else
+	XORG_CONF_DIR=$(SYSROOT)/etc/X11/xorg.conf.d
+endif
 
 all: framework
 
 clean:
-	make -C framework clean
+	$(MAKE) -C framework clean
 
 framework:
-	make -C framework all
+	$(MAKE) -C framework all
 
 tests:
-	make -C framework tests
+	$(MAKE) -C framework tests
 
 install:
 	mkdir -p $(DESTDIR)
-	DESTDIR=$(shell readlink -f $(DESTDIR)) make -C framework install
+	$(MAKE) -C framework install
 
 	install -D touchtests $(DESTDIR)/touchtests
 
@@ -37,7 +42,7 @@ install:
 	done
 
 setup-in-place:
-	OUT=. make -C ../mttools setup-in-place
+	OUT=. $(MAKE) -C ../mttools setup-in-place
 
 	# Create local-install folder with links to
 	# original folders. So there is no need to reinstall after changes.
@@ -49,9 +54,9 @@ setup-in-place:
 	ln -sf $(LOCALDESTDIR)/touchtests /usr/bin/touchtests
 
 in-place:
-	OUT=. make -C ../mttools in-place
+	OUT=. $(MAKE) -C ../mttools in-place
 
 clean-in-place:
-	OUT=. make -C ../mttools clean-in-place
+	OUT=. $(MAKE) -C ../mttools clean-in-place
 
 .PHONY: all clean framework tests install local-install
