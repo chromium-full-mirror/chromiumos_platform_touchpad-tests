@@ -63,7 +63,7 @@ class GestureLog(object):
         events.append(SwipeLiftGesture(start_time, end_time))
 
       elif gesture["gestureType"] == "fling":
-        if gesture["vx"] + gesture["vy"] == 0:
+        if gesture["flingState"] == 1:
           events.append(FlingStopGesture(start_time, end_time))
         else:
           events.append(FlingGesture(gesture["vx"], gesture["vy"], start_time,

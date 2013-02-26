@@ -7,12 +7,13 @@ from validators import *
 # originally generated gestures:
 # FlingStop
 #   Scroll d=217 x=0 y=217 r=0.51
-#   Fling d=19 x=0 y=19 r=0.00
+#   Fling d=0 x=0 y=0 r=0.00
 
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
     ScrollValidator("== 217 ~ 100"),
+    FlingValidator("0"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),
