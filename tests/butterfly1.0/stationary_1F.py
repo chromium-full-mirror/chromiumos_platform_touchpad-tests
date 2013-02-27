@@ -19,7 +19,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    MotionValidator("<1"),
+    MotionValidator("<1", merge=True),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),

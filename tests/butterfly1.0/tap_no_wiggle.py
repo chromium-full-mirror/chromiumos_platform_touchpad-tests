@@ -654,7 +654,7 @@ def Validate(raw, events, gestures):
     # We expect no motion
   ]
   # We know how many taps are expected
-  for i in xrange(0, 214):
+  for i in xrange(0, 213):
     fuzzy.expected.append(ButtonDownValidator(1));
     fuzzy.expected.append(ButtonUpValidator(1));
   fuzzy.unexpected = [
