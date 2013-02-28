@@ -57,6 +57,8 @@ class TestRunner(object):
       },
       "error": "",
       "events": "",
+      "description": "",
+      "disabled": False,
       "gestures": "",
       "result": "",
       "score": 0
@@ -66,6 +68,12 @@ class TestRunner(object):
     if result is not True:
       out["error"] = result
       out["result"] = "error"
+      return out
+
+    out["description"] = test_case.description
+
+    if test_case.disabled:
+      out["disabled"] = True
       return out
 
     try:
