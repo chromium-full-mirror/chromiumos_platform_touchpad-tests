@@ -5,12 +5,11 @@
 # This module is the main module for the console interface. It takes care
 # of parsing the command line arguments and formating the output
 from optparse import OptionParser
-from os import path
+from subprocess import Popen, PIPE, STDOUT
 from tempfile import NamedTemporaryFile
 import json
 import math
 import os
-import pprint
 import sys
 
 from mtedit.editor import LogEditor
@@ -20,6 +19,7 @@ from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
 from test_runner import ParallelTestRunner as TestRunner
+
 
 _help_text = """\
 Multitouch Regression Test Suite:
@@ -75,6 +75,22 @@ $ gmerge utouch-evemu
 $ evemu-describe /path/to/device > platform.dat
 """
 
+
+def Compile():
+  if "SRC_DIR" not in os.environ:
+    print "Requires SRC_DIR env-var. Re-run $ sudo make setup-in-place"
+    sys.exit(-1)
+
+  dir = os.environ["SRC_DIR"]
+  print "Recompiling gestures/libevdev/replay..."
+  process = Popen(["make", "in-place"], cwd=dir,
+                  stdout=PIPE, stderr=STDOUT)
+  ret = process.wait()
+  if ret != 0:
+    print process.stdout.read()
+    sys.exit(-1)
+
+
 def Verify(device, glob):
   verifier = TestVerifier(os.environ["TESTS_DIR"], device)
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
@@ -85,7 +101,10 @@ def Verify(device, glob):
     report = verifier.Verify(case)
     print report
 
-def Run(glob, out_file=None, ref_file=None):
+
+def Run(glob, out_file=None, ref_file=None, autotest=False):
+  if not autotest:
+    Compile()
   print "Running tests..."
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   results = runner.RunAll(glob)
@@ -144,7 +163,9 @@ def Run(glob, out_file=None, ref_file=None):
     print "\x1b[91mThere are regressions present in this test run!\x1b[0m"
     exit(-1)
 
+
 def Get(test_name, what, file=None):
+  Compile()
   if file:
     data = json.load(open(file))
     results = data[test_name]
@@ -166,6 +187,7 @@ def Get(test_name, what, file=None):
   elif what == "return-activity":
     return results["logs"]["activity"]
 
+
 def Add(testname, activity_log, event_log):
   """
   Adds a new test case.
@@ -175,6 +197,7 @@ def Add(testname, activity_log, event_log):
   case = factory.CreateTest(testname, activity_log, event_log)
   if case:
     print "Test \"" + case.name + "\" created"
+
 
 def Main():
   """
@@ -278,7 +301,8 @@ def Main():
       Get(test_name, view)
 
   else:
-    Run(test_name, options.out, options.ref)
+    Run(test_name, options.out, options.ref, options.autotest)
+
 
 if __name__ == "__main__":
   Main()
