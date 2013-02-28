@@ -133,6 +133,16 @@ class TestCase(object):
     return self._CommonFile(".props")
 
   @property
+  def description(self):
+    module = self.module
+    return module.Validate.__doc__ if module.Validate.__doc__ else ""
+
+  @property
+  def disabled(self):
+    module = self.module
+    return hasattr(module.Validate, "disabled") and module.Validate.disabled
+
+  @property
   def module(self):
     module_file = self.case_module_file
     if not path.exists(module_file):

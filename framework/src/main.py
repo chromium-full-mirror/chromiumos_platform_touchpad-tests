@@ -113,8 +113,12 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
   sorted_results_items = sorted(results.items())
   for key, value in sorted_results_items:
     print "### Validation report for", key
-    print value["logs"]["validation"]
-    print value["error"]
+    print value["description"]
+    if value["disabled"]:
+      print "DISABLED"
+    else:
+      print value["logs"]["validation"]
+      print value["error"]
 
   # load reference
   ref = {}
@@ -132,6 +136,8 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
       # format result to string
       if value["result"] == "success":
         return "%s (%.4f)" % (value["result"], value["score"])
+      elif value["disabled"]:
+        return "disabled"
       else:
         return value["result"]
 
