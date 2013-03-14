@@ -9,9 +9,6 @@ from validators import *
 #   FlingStop
 
 def Validate(raw, events, gestures):
-  """
-    todo(adlr): investigate why this test is failing
-  """
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
     MotionValidator("== 531 ~ 50", merge=True),
@@ -20,5 +17,3 @@ def Validate(raw, events, gestures):
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)
-
-Validate.disabled = True

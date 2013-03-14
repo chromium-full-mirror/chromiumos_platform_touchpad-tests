@@ -9,9 +9,6 @@ from validators import *
 #   FlingStop
 
 def Validate(raw, events, gestures):
-  """
-    todo(adlr): investigate why this test is failing
-  """
   fuzzy = FuzzyCheck()
   # Make sure no events after 4924.525335 occur
   for event in events:
@@ -19,5 +16,3 @@ def Validate(raw, events, gestures):
     if float(event.end) > 4924.525 and dist > 0.0:
       return False, 'Has jump movement at end'
   return 1, 'Success'
-
-Validate.disabled = True
