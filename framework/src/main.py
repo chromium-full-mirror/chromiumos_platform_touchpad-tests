@@ -213,6 +213,9 @@ def Main():
                     dest="noedit", action="store_true", default=False,
                     help="Skip editing when creating tests. Add original log " +
                          "[Default: False]")
+  parser.add_option("--autotest",
+                    dest="autotest", action="store_true", default=False,
+                    help="Run in autotest mode. Skips recompilation.")
 
   (options, args) = parser.parse_args()
 
