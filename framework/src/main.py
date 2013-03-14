@@ -90,23 +90,9 @@ def Run(glob, out_file=None, ref_file=None):
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   results = runner.RunAll(glob)
 
-  # load reference
-  ref = {}
-  if ref_file:
-    ref = json.load(open(ref_file))
-
   # print reports
   sorted_results_items = sorted(results.items())
   for key, value in sorted_results_items:
-    if len(results) > 1:
-      # only print reports for regressions or failed tests
-      if key in ref:
-        delta = value["score"] - ref[key]["score"]
-        if math.fabs(delta) < 1e-10:
-          continue
-      elif value["result"] == "success":
-        continue
-
     print "### Validation report for", key
     print value["description"]
     if value["disabled"]:
@@ -114,6 +100,11 @@ def Run(glob, out_file=None, ref_file=None):
     else:
       print value["logs"]["validation"]
       print value["error"]
+
+  # load reference
+  ref = {}
+  if ref_file:
+    ref = json.load(open(ref_file))
 
   # format result table
   table = Table()
