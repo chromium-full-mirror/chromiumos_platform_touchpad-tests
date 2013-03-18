@@ -20,8 +20,11 @@ def Validate(raw, events, gestures):
     ButtonUpValidator(2),
     ButtonDownValidator(2),
     ButtonUpValidator(2),
-    ButtonDownValidator(2),
-    ButtonUpValidator(2),
+    # the expected behavior of this click changed:
+    # 2 cold fingers plus the touchdown of a 3rd finger that clicks the button
+    # is no longer supposed to do a middle click, but a left click
+    ButtonDownValidator(1),
+    ButtonUpValidator(1),
     ButtonDownValidator(2),
     ButtonUpValidator(2),
     ButtonDownValidator(2),
