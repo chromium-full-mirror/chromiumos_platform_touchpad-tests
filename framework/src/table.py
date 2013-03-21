@@ -96,20 +96,34 @@ class Table(object):
 
       # pad every element with one space
       data = []
+      color = "0"
       for i in range(column_count):
         if i < len(entry[1]):
           value = str(entry[1][i])
 
           # add padding for console escape characters
-          value = re.sub("(\x1b\[.m)", "    \\1", value)
-          value = re.sub("(\x1b\[..m)", "     \\1", value)
-          value = re.sub("(\x1b\[...m)", "      \\1", value)
+          value = re.sub("(\x1b\[.m)",   "     \\1", value)
+          value = re.sub("(\x1b\[..m)",  "    \\1", value)
+          value = re.sub("(\x1b\[...m)", "   \\1", value)
+
+          if "success" in value:
+            color = "32"
+          elif "failure" in value:
+            color = "31"
+          elif "bad" in value:
+            color = "33"
+          elif "disabled" in value:
+            color = "34"
 
           data.append(" " + value + " ")
         else:
           data.append("")
 
-      parts.append(format.format(*data))
+      line = format.format(*data)
+      if color != "0":
+        line = line.replace("|", "\x1b[m|\x1b[" + color + "m")
+
+      parts.append(line)
 
     parts.append(tf_format)
 

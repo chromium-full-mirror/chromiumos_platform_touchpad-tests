@@ -144,7 +144,8 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
     def ResultStr(value):
       # format result to string
       if value["result"] == "success":
-        return "%s (%.4f)" % (value["result"], value["score"])
+        msg = "success" if value["score"] >= 0.5 else "bad"
+        return "%s (%.4f)" % (msg, value["score"])
       elif value["disabled"]:
         return "disabled"
       else:
@@ -157,15 +158,15 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
       ref_score = ResultStr(ref[key])
       delta = value["score"] - ref[key]["score"]
       if math.fabs(delta) < 1e-10:
-        # don't color, but line up with other values
-        delta_str = "      %.4f    " % delta
+        # default color
+        delta_str = "\x1b[0m%.4f\x1b[0m" % delta
       elif delta < 0:
         regression = True
         # color red
-        delta_str = "\x1b[91m%+.4f\x1b[0m" % delta
+        delta_str = "\x1b[31m%+.4f\x1b[0m" % delta
       else:
         # color green
-        delta_str = "\x1b[92m%+.4f\x1b[0m" % delta
+        delta_str = "\x1b[32m%+.4f\x1b[0m" % delta
     table.row(key, ref_score, ResultStr(value), delta_str)
 
   print table
