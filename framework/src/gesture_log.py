@@ -55,6 +55,9 @@ class GestureLog(object):
         events.append(ScrollGesture(gesture["dx"], gesture["dy"], start_time,
                                     end_time))
 
+      elif gesture["gestureType"] == "pinch":
+        events.append(PinchGesture(gesture["dz"], start_time, end_time))
+
       elif gesture["gestureType"] == "swipe":
         events.append(SwipeGesture(gesture["dx"], gesture["dy"], start_time,
                                    end_time))
@@ -81,7 +84,7 @@ class GestureLog(object):
     for event in event_list:
       # merge motion and scroll events into gestures
       if (event.type == "Motion" or event.type == "Scroll" or
-          event.type == "Swipe"):
+          event.type == "Swipe" or event.type == "Pinch"):
         if event.type not in last_event_of_type:
           last_event_of_type[event.type] = event
           gestures.append(event)
@@ -98,29 +101,30 @@ class GestureLog(object):
     return gestures
 
 
-class MotionGesture(object):
+class AxisGesture(object):
   """
-  The motion gesture describes motion events. Either a single event or a
-  list of events that belong to one gesture.
+  Generic gesture class to describe gestures with x/y or z axis.
   """
-  type = "Motion"
 
-  def __init__(self, dx, dy, start, end):
+  def __init__(self, dx, dy, dz, start, end):
     """
-    Create a new instance describing a single motion event. To describe a
+    Create a new instance describing a single axis event. To describe a
     list of events that form a gesture use the Append method.
     @param dx: movement in x coords
     @param dy: movement in y coords
+    @param dz: movement in z coords
     @param start: start timestamp
     @param end: end timestamp
     """
     self.dx = math.fabs(dx)
     self.dy = math.fabs(dy)
+    self.dz = math.fabs(dz)
     self.start = start
     self.end = end
     self.segments = []
 
-    self.distance = math.sqrt(self.dx * self.dx + self.dy * self.dy)
+    self.distance = math.sqrt(self.dx * self.dx + self.dy * self.dy +
+                              self.dz * self.dz)
     self.segments.append(self.distance)
 
   def Append(self, motion):
@@ -130,6 +134,7 @@ class MotionGesture(object):
     """
     self.dx = self.dx + motion.dx
     self.dy = self.dy + motion.dy
+    self.dz = self.dz + motion.dz
     self.distance = self.distance + motion.distance
     self.segments.append(motion.distance)
     self.end = motion.end
@@ -191,19 +196,47 @@ class MotionGesture(object):
     return math.sqrt(sum(segments_hp_sq) / len(segments_hp))
 
   def __str__(self):
-    fstr = "{0} d={1} x={2} y={3} r={4:.2f}"
+    fstr = "{0} d={1} x={2} y={3} z={4} r={5:.2f}"
     return fstr.format(self.__class__.type, int(self.distance), int(self.dx),
-                       int(self.dy), self.Roughness())
+                       int(self.dy), int(self.dz), self.Roughness())
 
   def __repr__(self):
     return str(self)
 
+class MotionGesture(AxisGesture):
+  """
+  The motion gesture is only using the X and Y axis.
+  """
+  type = "Motion"
+
+  def __init__(self, dx, dy, start, end):
+    AxisGesture.__init__(self, dx, dy, 0, start, end)
+
+  def __str__(self):
+    fstr = "{0} d={1} x={2} y={3} r={4:.2f}"
+    return fstr.format(self.__class__.type, int(self.distance), int(self.dx),
+                       int(self.dy), self.Roughness())
 
 class ScrollGesture(MotionGesture):
   """
   The scroll gesture is functionally the same as the MotionGesture
   """
   type = "Scroll"
+
+
+class PinchGesture(AxisGesture):
+  """
+  The pinch gesture is functionally the same as the MotionGesture,
+  however only uses the dx variable to represent the zoom factor.
+  """
+  type = "Pinch"
+
+  def __init__(self, dz, start, end):
+    MotionGesture.__init__(self, 0, 0, dz, start, end)
+
+  def __str__(self):
+    fstr = "{0} dz={1} r={2:.2f}"
+    return fstr.format(self.__class__.type, int(self.dz), self.Roughness())
 
 
 class SwipeGesture(MotionGesture):
@@ -235,6 +268,7 @@ class FlingStopGesture(object):
 
   def __repr__(self):
     return str(self)
+
 
 class SwipeLiftGesture(object):
   """

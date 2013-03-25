@@ -136,7 +136,7 @@ class AbstractAxisValidator(AbstractValidator):
   Next to the overall movement, the Roughness measure of the movement can also
   be validateValidated.
   """
-  def __init__(self, d=None, x=None, y=None, start=None, end=None,
+  def __init__(self, d=None, x=None, y=None, z=None, start=None, end=None,
                roughness=None, merge=False):
     AbstractValidator.__init__(self, start, end)
     if d:
@@ -151,6 +151,10 @@ class AbstractAxisValidator(AbstractValidator):
       self._y_check = FuzzyComparator(y)
     else:
       self._y_check = None
+    if z:
+      self._z_check = FuzzyComparator(z)
+    else:
+      self._z_check = None
 
     if roughness:
       self._roughness_check = FuzzyComparator(roughness)
@@ -160,6 +164,7 @@ class AbstractAxisValidator(AbstractValidator):
     self._distance = 0
     self._x = 0
     self._y = 0
+    self._z = 0
     self._roughnesses = []
     self._UpdateScore()
     self.end = -1.0
@@ -179,6 +184,8 @@ class AbstractAxisValidator(AbstractValidator):
       self.score = self.score * self._x_check.Compare(self._x)
     if self._y_check:
       self.score = self.score * self._y_check.Compare(self._y)
+    if self._z_check:
+      self.score = self.score * self._z_check.Compare(self._z)
     if self._roughness_check:
       roughness = sum(self._roughnesses)
       self.score = self.score * self._roughness_check.Compare(roughness)
@@ -191,6 +198,7 @@ class AbstractAxisValidator(AbstractValidator):
     self._distance = self._distance + event.distance
     self._x = self._x + event.dx
     self._y = self._y + event.dy
+    self._z = self._z + event.dz
     self._ValidateTimestamps(event)
     self._UpdateScore()
     self.end = float(event.end)
@@ -207,6 +215,8 @@ class AbstractAxisValidator(AbstractValidator):
       valuators.append("x:" + str(int(self._x)) + str(self._x_check))
     if self._y_check:
       valuators.append("y:" + str(int(self._y)) + str(self._y_check))
+    if self._z_check:
+      valuators.append("z:" + str(int(self._z)) + str(self._z_check))
     if self._roughness_check:
       valuators.append("r:" + str(int(sum(self._roughnesses))) +
                        str(self._roughness_check))
@@ -219,6 +229,10 @@ class FlingValidator(AbstractAxisValidator):
 
 class ScrollValidator(AbstractAxisValidator):
   event_type = "Scroll"
+
+
+class PinchValidator(AbstractAxisValidator):
+  event_type = "Pinch"
 
 
 class SwipeValidator(AbstractAxisValidator):
