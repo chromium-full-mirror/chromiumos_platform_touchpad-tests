@@ -50,8 +50,7 @@ class TestFactory(object):
 
   user_property_names = [
     "Tap Drag Enable",
-    "Tap Enable",
-    "Sensitivity"
+    "Tap Enable"
   ]
 
   def __init__(self, tests_dir):
@@ -96,8 +95,16 @@ class TestFactory(object):
     # extract user defined properties
     properties = activity["properties"]
     user_properties = {}
+
+    if "Sensitivity" in properties:
+      user_properties["Pointer Sensitivity"] = properties["Sensitivity"]
+      user_properties["Scroll Sensitivity"] = properties["Sensitivity"]
+    else:
+      user_property_names.append(["Pointer Sensitivity", "Scroll Sensitivity"])
+
     for name in TestFactory.user_property_names:
       user_properties[name] = properties[name]
+
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
     # trim event log file
