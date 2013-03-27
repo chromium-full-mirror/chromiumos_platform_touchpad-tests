@@ -95,15 +95,18 @@ class TestFactory(object):
     # extract user defined properties
     properties = activity["properties"]
     user_properties = {}
+    user_property_names = list(TestFactory.user_property_names)
 
     if "Sensitivity" in properties:
       user_properties["Pointer Sensitivity"] = properties["Sensitivity"]
       user_properties["Scroll Sensitivity"] = properties["Sensitivity"]
     else:
-      user_property_names.append(["Pointer Sensitivity", "Scroll Sensitivity"])
+      user_property_names.extend([
+          "Pointer Sensitivity", "Scroll Sensitivity"])
 
-    for name in TestFactory.user_property_names:
-      user_properties[name] = properties[name]
+    for name in user_property_names:
+      if name not in case.ignore_properties:
+        user_properties[name] = properties[name]
 
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
