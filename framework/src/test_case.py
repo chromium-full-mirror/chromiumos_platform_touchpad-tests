@@ -170,6 +170,12 @@ class TestCase(object):
       self._LoadProperties()
     return self._ignore_properties
 
+  @property
+  def device_class(self):
+    if self.properties is None:
+      self._LoadProperties()
+    return self.properties.get("device_class")
+
   def _LoadProperties(self):
     self.properties = { "gestures": {}, "validator": {}}
     self._LoadXOrgConfigProperties(self._PlatformFile("platform.props"))
@@ -210,6 +216,8 @@ class TestCase(object):
       self.properties["validator"].update(data["validator"])
     if "ignore" in data:
       self._ignore_properties.extend(data["ignore"])
+    if "device_class" in data:
+      self.properties["device_class"] = data["device_class"]
 
   def _TestCaseFile(self, extension):
     return os.path.join(self.tests_path, *self.path) + extension

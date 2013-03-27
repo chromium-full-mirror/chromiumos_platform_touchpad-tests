@@ -78,7 +78,7 @@ class TestRunner(object):
 
     try:
       properties = json.dumps(test_case.gesture_props)
-      replay = Replay(test_case.platform_dat_file)
+      replay = Replay(test_case.platform_dat_file, test_case.device_class)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))
 
       score, validation_log = test_case.module.Validate(log.raw,
