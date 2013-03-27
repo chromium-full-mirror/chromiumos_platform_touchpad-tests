@@ -1,5 +1,7 @@
 {
-	"gestures": {},
+	"gestures": {
+		"Non-linearity correction data file": "tests/lumpy/lumpy_linearity.dat"
+	},
 	"xorg": {
 		"file": "50-touchpad-cmt-lumpy.conf",
 		"identifiers": ["touchpad lumpy", "touchpad lumpy cyapa"]
