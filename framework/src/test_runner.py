@@ -148,7 +148,7 @@ class TestRunner(object):
 
 
 def ParallelTestRunnerProcess(case):
-  runner = TestRunner(os.environ["TESTS_DIR"])
+  runner = TestRunner(case.tests_path)
   return (case, runner.RunTest(case))
 
 
