@@ -106,7 +106,10 @@ class TestFactory(object):
 
     for name in user_property_names:
       if name not in case.ignore_properties:
-        user_properties[name] = properties[name]
+        if name in properties:
+          user_properties[name] = properties[name]
+        else:
+          print "Warning: No User-Property", name, "set"
 
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
