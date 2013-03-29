@@ -54,8 +54,8 @@ class AbstractValidator(object):
 
   def _ValidateTimestamps(self, event):
     if self._start == 0:
-      self._start = event.start
-    self._end = event.end
+      self._start = float(event.start)
+    self._end = float(event.end)
 
   def _ScoreTimestamps(self):
     score = 1
@@ -167,14 +167,13 @@ class AbstractAxisValidator(AbstractValidator):
     self._z = 0
     self._roughnesses = []
     self._UpdateScore()
-    self.end = -1.0
-    self.merge = merge
+    self._merge = merge
 
   def Accept(self, event):
     return (event.type == self.event_type and
-            ((float(event.start) - self.end) < 0.1 or
-             self.end < 0.0 or
-             self.merge))
+            ((float(event.start) - self._end) < 0.1 or
+             self._end <= 0.0 or
+             self._merge))
 
   def _UpdateScore(self):
     self.score = 1
@@ -201,7 +200,7 @@ class AbstractAxisValidator(AbstractValidator):
     self._z = self._z + event.dz
     self._ValidateTimestamps(event)
     self._UpdateScore()
-    self.end = float(event.end)
+
 
   def TypeString(self):
     return self.event_type
@@ -220,6 +219,10 @@ class AbstractAxisValidator(AbstractValidator):
     if self._roughness_check:
       valuators.append("r:" + str(int(sum(self._roughnesses))) +
                        str(self._roughness_check))
+    if self._start_check:
+      valuators.append("start:" + str(self._start) + str(self._start_check))
+    if self._end_check:
+      valuators.append("end:" + str(self._end) + str(self._end_check))
     return self.event_type + " " + (" ".join(valuators))
 
 
