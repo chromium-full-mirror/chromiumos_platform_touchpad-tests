@@ -4,12 +4,6 @@
 from fuzzy_check import FuzzyCheck
 from validators import *
 
-# originally generated gestures:
-# FlingStop
-#   FlingStop
-#   Motion d=14 x=1 y=13 r=0.45
-#   Scroll d=420 x=13 y=409 r=0.98
-#   Fling d=0 x=0 y=0 r=0.00
 
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
@@ -18,7 +12,7 @@ def Validate(raw, events, gestures):
     FlingValidator("0"),
   ]
   fuzzy.unexpected = [
-    MotionValidator("< 10 ~ 30"),
+    MotionValidator("== 0 ~ 20"),
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)

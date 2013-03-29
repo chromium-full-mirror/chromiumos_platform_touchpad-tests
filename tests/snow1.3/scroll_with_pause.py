@@ -14,11 +14,11 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    ScrollValidator("== 1891 ~ 1000", merge=True),
-    FlingValidator("== 26016 ~ 10000"),
+    ScrollValidator("> 1800 ~ 1000", merge=True),
+    FlingValidator("> 20000 ~ 10000"),
   ]
   fuzzy.unexpected = [
-    MotionValidator("== 0 ~ 50", merge=True),
+    MotionValidator("== 0 ~ 10", merge=True),
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)

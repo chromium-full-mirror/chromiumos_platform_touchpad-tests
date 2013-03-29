@@ -4,18 +4,17 @@
 from fuzzy_check import FuzzyCheck
 from validators import *
 
-# originally generated gestures:
-# FlingStop
-#   FlingStop
-#   Scroll d=262 x=0 y=262 r=1.68
-#   Fling d=2290 x=0 y=2290 r=0.00
 
 def Validate(raw, events, gestures):
+  """
+    Test if even with a resting (and moving) thumb we still get
+    good scrolling and fling behavior
+  """
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    ScrollValidator("== 262 ~ 200"),
+    ScrollValidator("> 200 ~ 100"),
     # The important thing about this test is that a good fling occurs:
-    FlingValidator("== 2290 ~ 2000"),
+    FlingValidator("> 2000 ~ 1000"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),

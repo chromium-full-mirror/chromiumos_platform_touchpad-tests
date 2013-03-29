@@ -4,13 +4,11 @@
 from fuzzy_check import FuzzyCheck
 from validators import *
 
-# originally generated gestures:
-# Motion d=248 x=147 y=191 r=2.76
-#   FlingStop
 
 def Validate(raw, events, gestures):
   """
-    todo(adlr): investigate why this test is failing
+    Feedback showed the cursor jumping after lifting the finger.
+    Make sure it does not happen.
   """
   fuzzy = FuzzyCheck()
   # Make sure no events after 4924.525335 occur
@@ -19,5 +17,3 @@ def Validate(raw, events, gestures):
     if float(event.end) > 4924.525 and dist > 0.0:
       return False, 'Has jump movement at end'
   return 1, 'Success'
-
-Validate.disabled = True
