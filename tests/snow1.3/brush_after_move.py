@@ -19,3 +19,6 @@ def Validate(raw, events, gestures):
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)
+
+# We don't support this behavior. Too many people click after moving.
+Validate.disabled = True;
