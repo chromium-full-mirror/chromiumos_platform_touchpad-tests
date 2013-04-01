@@ -232,7 +232,7 @@ class PinchGesture(AxisGesture):
   type = "Pinch"
 
   def __init__(self, dz, start, end):
-    MotionGesture.__init__(self, 0, 0, dz, start, end)
+    AxisGesture.__init__(self, 0, 0, dz, start, end)
 
   def __str__(self):
     fstr = "{0} dz={1} r={2:.2f}"
