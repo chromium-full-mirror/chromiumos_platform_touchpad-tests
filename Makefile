@@ -6,6 +6,8 @@ DESTDIR ?= target
 LOCALDESTDIR=$(shell readlink -f local-install)
 OVERLAY=../../third_party/chromiumos-overlay/
 
+export DESTDIR
+
 ifeq ($(origin SYSROOT), undefined)
 	XORG_CONF_DIR=../xorg-conf
 else
