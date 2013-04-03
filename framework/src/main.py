@@ -209,7 +209,7 @@ def Add(testname, activity_log, event_log):
   Adds a new test case.
   """
   # determine test name from activity_log name
-  factory = TestFactory(os.environ["TESTS_DIR"])
+  factory = TestFactory(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   case = factory.CreateTest(testname, activity_log, event_log)
   if case:
     print "Test \"" + case.name + "\" created"

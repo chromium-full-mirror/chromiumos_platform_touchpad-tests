@@ -53,8 +53,9 @@ class TestFactory(object):
     "Tap Enable"
   ]
 
-  def __init__(self, tests_dir):
+  def __init__(self, tests_dir, xorg_conf_dir):
     self.tests_dir = tests_dir
+    self.xorg_conf_dir = xorg_conf_dir
 
   def _ValidateGestures(self, replay_log, original_log):
     if len(replay_log.gestures) != len(original_log.gestures):
@@ -74,7 +75,7 @@ class TestFactory(object):
     the events from the activity/cmt log file and also provides a template for
     the validator.
     """
-    case = TestCase(self.tests_dir, name)
+    case = TestCase(self.tests_dir, name, self.xorg_conf_dir)
 
     if not os.path.exists(case.platform_dat_file):
       print "Platform does not exist (missing platform.dat)"
@@ -114,11 +115,11 @@ class TestFactory(object):
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
     # trim event log file
-    replay = Replay(case.platform_dat_file)
+    replay = Replay(case.platform_dat_file, case.device_class)
     replay.Trim(cmt_file, case.log_file, trim_from, trim_to)
 
     properties_str = json.dumps(case.gesture_props)
-    replay = Replay(case.platform_dat_file)
+    replay = Replay(case.platform_dat_file, case.device_class)
     replay_data = replay.Replay(case.log_file, properties_str, True)
     replay_log = GestureLog(replay_data)
 
