@@ -52,6 +52,9 @@ for the evdev log file. You can optionally supply -e to override this path.
 log file will then be used to create the new test case. Specify --no-edit in
 case you do not want to use the original files without trimming.
 
+$ %prog test_name --gdb
+Run the test using gdb for debugging the gestures library
+
 General Info:
 -------------
 testname arguments:
@@ -203,6 +206,10 @@ def Get(test_name, what, file=None):
   elif what == "return-activity":
     return results["logs"]["activity"]
 
+def GDB(test_name):
+  Compile()
+  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+  data = runner.RunGDB(test_name)
 
 def Add(testname, activity_log, event_log):
   """
@@ -255,7 +262,9 @@ def Main():
   parser.add_option("--autotest",
                     dest="autotest", action="store_true", default=False,
                     help="Run in autotest mode. Skips recompilation.")
-
+  parser.add_option("--gdb",
+                    dest="gdb", action="store_true", default=False,
+                    help="Run the test case in GDB")
   (options, args) = parser.parse_args()
 
   if len(args) == 0:
@@ -315,7 +324,8 @@ def Main():
       editor.View(log)
     else:
       Get(test_name, view)
-
+  elif options.gdb:
+    GDB(test_name)
   else:
     Run(test_name, options.out, options.ref, options.autotest)
 

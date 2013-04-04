@@ -99,6 +99,12 @@ class TestRunner(object):
 
     return out
 
+  def RunGDB(self, glob):
+    test_case = self.DiscoverTestCases(glob)[0]
+    properties = json.dumps(test_case.gesture_props)
+    replay = Replay(test_case.platform_dat_file, test_case.device_class)
+    replay.Replay(test_case.log_file, properties, True, gdb_mode=True)
+
   def RunAll(self, glob="all"):
     """
     This method runs a set of test cases. Test cases can be selected using
