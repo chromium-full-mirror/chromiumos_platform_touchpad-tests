@@ -196,9 +196,9 @@ class AxisGesture(object):
     return math.sqrt(sum(segments_hp_sq) / len(segments_hp))
 
   def __str__(self):
-    fstr = "{0} d={1} x={2} y={3} z={4} r={5:.2f}"
-    return fstr.format(self.__class__.type, int(self.distance), int(self.dx),
-                       int(self.dy), int(self.dz), self.Roughness())
+    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} z={4:.4g} r={5:.4g}"
+    return fstr.format(self.__class__.type, self.distance, self.dx,
+                       self.dy, self.dz, self.Roughness())
 
   def __repr__(self):
     return str(self)
@@ -213,9 +213,9 @@ class MotionGesture(AxisGesture):
     AxisGesture.__init__(self, dx, dy, 0, start, end)
 
   def __str__(self):
-    fstr = "{0} d={1} x={2} y={3} r={4:.2f}"
-    return fstr.format(self.__class__.type, int(self.distance), int(self.dx),
-                       int(self.dy), self.Roughness())
+    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} r={4:.4g}"
+    return fstr.format(self.__class__.type, self.distance, self.dx,
+                       self.dy, self.Roughness())
 
 class ScrollGesture(MotionGesture):
   """
@@ -235,8 +235,8 @@ class PinchGesture(AxisGesture):
     AxisGesture.__init__(self, 0, 0, dz, start, end)
 
   def __str__(self):
-    fstr = "{0} dz={1} r={2:.2f}"
-    return fstr.format(self.__class__.type, int(self.dz), self.Roughness())
+    fstr = "{0} dz={1:.4g} r={2:.4g}"
+    return fstr.format(self.__class__.type, self.dz, self.Roughness())
 
 
 class SwipeGesture(MotionGesture):

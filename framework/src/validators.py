@@ -208,16 +208,16 @@ class AbstractAxisValidator(AbstractValidator):
   def __str__(self):
     valuators = []
     if self._distance_check:
-      valuators.append("d:" + str(int(self._distance)) +
+      valuators.append("d:{0:.4g}".format(self._distance) +
                        str(self._distance_check))
     if self._x_check:
-      valuators.append("x:" + str(int(self._x)) + str(self._x_check))
+      valuators.append("x:{0:.4g}".format(self._x) + str(self._x_check))
     if self._y_check:
-      valuators.append("y:" + str(int(self._y)) + str(self._y_check))
+      valuators.append("y:{0:.4g}".format(self._y) + str(self._y_check))
     if self._z_check:
-      valuators.append("z:" + str(int(self._z)) + str(self._z_check))
+      valuators.append("z:{0:.4g}".format(self._z) + str(self._z_check))
     if self._roughness_check:
-      valuators.append("r:" + str(int(sum(self._roughnesses))) +
+      valuators.append("r:{0:.4g}".format(sum(self._roughnesses)) +
                        str(self._roughness_check))
     if self._start_check:
       valuators.append("start:" + str(self._start) + str(self._start_check))

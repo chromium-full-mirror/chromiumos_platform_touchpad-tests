@@ -66,8 +66,8 @@ class FuzzyCheck(object):
     def CheckUnexpectedEvent(event):
       for validator in self.unexpected:
         if validator.Accept(event):
-          AddRow(event, validator, True)
           validator.Validate(event)
+          AddRow(event, validator, True)
           return True
       # no validator found. Fail.
       AddRow(event, "no matching validator")
@@ -204,9 +204,9 @@ class FuzzyComparator(object):
       self._operator_str = "=="
 
   def __str__(self):
-    result = self._operator_str + str(int(self._target))
+    result = self._operator_str + "{0:.4g}".format(self._target)
     if self._fuzzyness > 0:
-      result = result + "~" + str(int(self._fuzzyness))
+      result = result + "~{0:.4g}".format(self._fuzzyness)
     return result
 
   def Compare(self, value):
