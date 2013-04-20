@@ -211,13 +211,13 @@ def GDB(test_name):
   runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
   data = runner.RunGDB(test_name)
 
-def Add(testname, activity_log, event_log):
+def Add(testname, activity_log, event_log, gdb):
   """
   Adds a new test case.
   """
   # determine test name from activity_log name
   factory = TestFactory(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
-  case = factory.CreateTest(testname, activity_log, event_log)
+  case = factory.CreateTest(testname, activity_log, event_log, gdb)
   if case:
     print "Test \"" + case.name + "\" created"
 
@@ -295,7 +295,7 @@ def Main():
     tmp_evdev.flush()
 
     # pass to touchtests
-    Add(test_name, tmp.name, tmp_evdev.name)
+    Add(test_name, tmp.name, tmp_evdev.name, options.gdb)
 
     # cleanup
     tmp.close()

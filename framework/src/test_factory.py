@@ -69,7 +69,7 @@ class TestFactory(object):
     return True
 
 
-  def CreateTest(self, name, activity_file, cmt_file):
+  def CreateTest(self, name, activity_file, cmt_file, gdb=False):
     """
     Create a new test. This method will create all necessary files to replay
     the events from the activity/cmt log file and also provides a template for
@@ -116,7 +116,7 @@ class TestFactory(object):
 
     # trim event log file
     replay = Replay(case.platform_dat_file, case.device_class)
-    replay.Trim(cmt_file, case.log_file, trim_from, trim_to)
+    replay.Trim(cmt_file, case.log_file, trim_from, trim_to, gdb)
 
     properties_str = json.dumps(case.gesture_props)
     replay = Replay(case.platform_dat_file, case.device_class)
