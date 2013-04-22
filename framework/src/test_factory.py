@@ -8,13 +8,14 @@
 from gesture_log import GestureLog
 from mtlib.replay import Replay
 from test_case import TestCase
+import datetime
 import decimal
 import json
 import math
 import os
 
 new_test_template = """\
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright (c) %d The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 from fuzzy_check import FuzzyCheck
@@ -127,7 +128,8 @@ class TestFactory(object):
     # from commons
     if not case.module:
       report = "# " + "\n#   ".join([str(g) for g in replay_log.gestures])
-      open(case.case_module_file, "w").write(new_test_template % report)
+      year = datetime.date.today().year
+      open(case.case_module_file, "w").write(new_test_template % (year, report))
 
     self._CheckCreatedTest(case, activity_log, replay_log)
 
