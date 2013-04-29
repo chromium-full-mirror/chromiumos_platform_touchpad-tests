@@ -9,6 +9,7 @@ from subprocess import Popen, PIPE, STDOUT
 from tempfile import NamedTemporaryFile
 import json
 import math
+import multiprocessing
 import os
 import sys
 
@@ -86,8 +87,8 @@ def Compile():
 
   dir = os.environ["SRC_DIR"]
   print "Recompiling gestures/libevdev/replay..."
-  process = Popen(["make", "in-place"], cwd=dir,
-                  stdout=PIPE, stderr=STDOUT)
+  process = Popen(["make", "-j", str(multiprocessing.cpu_count()),
+                  "in-place"], cwd=dir, stdout=PIPE, stderr=STDOUT)
   ret = process.wait()
   if ret != 0:
     print process.stdout.read()
