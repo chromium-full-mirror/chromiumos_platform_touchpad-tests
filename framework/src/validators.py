@@ -137,7 +137,7 @@ class AbstractAxisValidator(AbstractValidator):
   be validateValidated.
   """
   def __init__(self, d=None, x=None, y=None, z=None, start=None, end=None,
-               roughness=None, merge=False):
+               roughness=None, merge=False, integralPixels=False):
     AbstractValidator.__init__(self, start, end)
     if d:
       self._distance_check = FuzzyComparator(d)
@@ -165,9 +165,11 @@ class AbstractAxisValidator(AbstractValidator):
     self._x = 0
     self._y = 0
     self._z = 0
+    self._distance_remainder = 0.0
     self._roughnesses = []
     self._UpdateScore()
     self._merge = merge
+    self._integralPixels = integralPixels
 
   def Accept(self, event):
     return (event.type == self.event_type and
@@ -192,9 +194,17 @@ class AbstractAxisValidator(AbstractValidator):
     if self.score == 0:
       self.score = False
 
+  def _AddDistance(self, event):
+    if self._integralPixels:
+      distance = self._distance + event.distance + self._distance_remainder
+      self._distance = int(distance)
+      self._distance_remainder = distance - self._distance
+    else:
+      self._distance = self._distance + event.distance
+
   def Validate(self, event):
     self._roughnesses.append(event.Roughness())
-    self._distance = self._distance + event.distance
+    self._AddDistance(event)
     self._x = self._x + event.dx
     self._y = self._y + event.dy
     self._z = self._z + event.dz
