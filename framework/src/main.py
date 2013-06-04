@@ -267,6 +267,7 @@ def Main():
                     help="Run the test case in GDB")
   (options, args) = parser.parse_args()
   options.download = False  # For compatibility with mtedit
+  options.screenshot = False  # For compatibility with mtedit
 
   if len(args) == 0:
     test_name = "all"
