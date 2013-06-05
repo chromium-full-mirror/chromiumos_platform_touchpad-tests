@@ -173,7 +173,8 @@ class FuzzyComparator(object):
   """
   def __init__(self, input):
     if isinstance(input, str):
-      m = re.match("([><=]=?)?[ ]*(\-?[0-9]+)[ ]*(~[ ]*[0-9]+)?", input)
+      m = re.match("([><=]=?)?[ ]*(\\-?[0-9]+\\.?[0-9]*)[ ]*" +
+                   "(~[ ]*[0-9]+\\.?[0-9]*)?", input)
 
       if not m:
         raise ValueError("Malformed comparator: '" + input + "'")
