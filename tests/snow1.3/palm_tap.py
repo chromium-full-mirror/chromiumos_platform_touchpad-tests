@@ -17,7 +17,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    MotionValidator("> 0"),
+    MotionValidator("> 0", merge=True),
     # Tap-click not expected here
   ]
   fuzzy.unexpected = [
