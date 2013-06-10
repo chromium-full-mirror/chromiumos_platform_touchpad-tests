@@ -81,15 +81,28 @@ class TestRunner(object):
       replay = Replay(test_case.platform_dat_file, test_case.device_class)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))
 
-      score, validation_log = test_case.module.Validate(log.raw,
-          log.events, log.gestures)
-
       out["logs"]["evdev"] = replay.evdev_log
       out["logs"]["gestures"] = replay.gestures_log
       out["logs"]["activity"] = replay.activity_log
-      out["logs"]["validation"] = validation_log
       out["events"] = "\n".join(map(lambda e: str(e), log.events))
       out["gestures"] = "\n".join(map(lambda g: str(g), log.gestures))
+
+      # look for errors in the gestures library output
+      errors = []
+      for line in replay.gestures_log.splitlines():
+        if line.startswith("ERROR:"):
+          errors.append(line)
+
+      if errors:
+        out["error"] = "\n".join(errors)
+        out["result"] = "error"
+        return out
+
+      # validate the replay results
+      score, validation_log = test_case.module.Validate(log.raw,
+          log.events, log.gestures)
+
+      out["logs"]["validation"] = validation_log
       out["result"] = "success" if score is not False else "failure"
       out["score"] = score
 
