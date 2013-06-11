@@ -180,6 +180,7 @@ class ParallelTestRunner(TestRunner):
     pool = multiprocessing.Pool()
     cases = self.DiscoverTestCases(glob)
     data = pool.map(ParallelTestRunnerProcess, cases)
+    pool.terminate()
     results = {}
     for case, result in data:
       results[case.name] = result
