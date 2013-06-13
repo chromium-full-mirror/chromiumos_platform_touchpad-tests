@@ -13,7 +13,7 @@ import sys
 import traceback
 
 from gesture_log import GestureLog
-from mtlib.replay import Replay
+from mtreplay import MTReplay
 from os import path
 from test_case import TestCase
 
@@ -78,7 +78,7 @@ class TestRunner(object):
 
     try:
       properties = json.dumps(test_case.gesture_props)
-      replay = Replay(test_case.platform_dat_file, test_case.device_class)
+      replay = MTReplay(test_case.platform_dat_file, test_case.device_class)
       log = GestureLog(replay.Replay(test_case.log_file, properties, True))
 
       out["logs"]["evdev"] = replay.evdev_log
@@ -115,7 +115,7 @@ class TestRunner(object):
   def RunGDB(self, glob):
     test_case = self.DiscoverTestCases(glob)[0]
     properties = json.dumps(test_case.gesture_props)
-    replay = Replay(test_case.platform_dat_file, test_case.device_class)
+    replay = MTReplay(test_case.platform_dat_file, test_case.device_class)
     replay.Replay(test_case.log_file, properties, True, gdb_mode=True)
 
   def RunAll(self, glob="all"):

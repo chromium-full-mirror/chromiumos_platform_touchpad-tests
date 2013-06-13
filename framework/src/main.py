@@ -13,8 +13,8 @@ import multiprocessing
 import os
 import sys
 
-from mtedit.editor import LogEditor
-from mtedit.log import Log
+from mtedit import MTEdit
+from mtlib import Log
 
 from table import Table
 from test_case import TestCase
@@ -288,7 +288,7 @@ def Main():
     if options.noedit:
       log = original_log
     else:
-      editor = LogEditor(persistent=False)
+      editor = MTEdit(persistent=False)
       log = editor.Edit(original_log)
 
     # write to temporary files
@@ -323,7 +323,7 @@ def Main():
       tmp.write(activity)
       tmp.flush()
       log = Log(tmp.name, options)
-      editor = LogEditor(persistent=False)
+      editor = MTEdit(persistent=False)
       editor.View(log)
     else:
       Get(test_name, view)

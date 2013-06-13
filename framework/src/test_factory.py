@@ -6,7 +6,7 @@
 # an activity and cmt log.
 
 from gesture_log import GestureLog
-from mtlib.replay import Replay
+from mtreplay import MTReplay
 from test_case import TestCase
 import datetime
 import decimal
@@ -116,11 +116,11 @@ class TestFactory(object):
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
     # trim event log file
-    replay = Replay(case.platform_dat_file, case.device_class)
+    replay = MTReplay(case.platform_dat_file, case.device_class)
     replay.Trim(cmt_file, case.log_file, trim_from, trim_to, gdb)
 
     properties_str = json.dumps(case.gesture_props)
-    replay = Replay(case.platform_dat_file, case.device_class)
+    replay = MTReplay(case.platform_dat_file, case.device_class)
     replay_data = replay.Replay(case.log_file, properties_str, True)
     replay_log = GestureLog(replay_data)
 
