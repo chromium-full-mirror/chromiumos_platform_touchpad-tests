@@ -119,8 +119,8 @@ class AxisGesture(object):
     self.dx = math.fabs(dx)
     self.dy = math.fabs(dy)
     self.dz = math.fabs(dz)
-    self.start = start
-    self.end = end
+    self.start = float(start)
+    self.end = float(end)
     self.segments = []
 
     self.distance = math.sqrt(self.dx * self.dx + self.dy * self.dy +
@@ -138,6 +138,15 @@ class AxisGesture(object):
     self.distance = self.distance + motion.distance
     self.segments.append(motion.distance)
     self.end = motion.end
+
+  def Speed(self):
+    """
+    Average speed of motion in mm/s.
+    """
+    if self.end > self.start:
+      return self.distance / (self.end - self.start)
+    else:
+      return float("+inf")
 
   def Roughness(self):
     """
@@ -190,15 +199,14 @@ class AxisGesture(object):
     segments_hp = []
     for i in range(0, len(self.segments)):
       segments_hp.append(self.segments[i] - segments_lp[i])
-
     # square signal and calculate squared average
     segments_hp_sq = map(lambda v:v * v, segments_hp)
     return math.sqrt(sum(segments_hp_sq) / len(segments_hp))
 
   def __str__(self):
-    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} z={4:.4g} r={5:.4g}"
+    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} z={4:.4g} r={5:.4g} s={6:.4g}"
     return fstr.format(self.__class__.type, self.distance, self.dx,
-                       self.dy, self.dz, self.Roughness())
+                       self.dy, self.dz, self.Roughness(), self.Speed())
 
   def __repr__(self):
     return str(self)
@@ -213,9 +221,9 @@ class MotionGesture(AxisGesture):
     AxisGesture.__init__(self, dx, dy, 0, start, end)
 
   def __str__(self):
-    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} r={4:.4g}"
+    fstr = "{0} d={1:.4g} x={2:.4g} y={3:.4g} r={4:.4g} s={5:.4g}"
     return fstr.format(self.__class__.type, self.distance, self.dx,
-                       self.dy, self.Roughness())
+                       self.dy, self.Roughness(), self.Speed())
 
 class ScrollGesture(MotionGesture):
   """

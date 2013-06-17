@@ -137,7 +137,7 @@ class AbstractAxisValidator(AbstractValidator):
   be validateValidated.
   """
   def __init__(self, d=None, x=None, y=None, z=None, start=None, end=None,
-               roughness=None, merge=False, integralPixels=False):
+               roughness=None, speed=None, merge=False, integralPixels=False):
     AbstractValidator.__init__(self, start, end)
     if d:
       self._distance_check = FuzzyComparator(d)
@@ -156,6 +156,11 @@ class AbstractAxisValidator(AbstractValidator):
     else:
       self._z_check = None
 
+    if speed:
+      self._speed_check = FuzzyComparator(speed)
+    else:
+      self._speed_check = None
+
     if roughness:
       self._roughness_check = FuzzyComparator(roughness)
     else:
@@ -167,9 +172,15 @@ class AbstractAxisValidator(AbstractValidator):
     self._z = 0
     self._distance_remainder = 0.0
     self._roughnesses = []
+    self._speeds = []
     self._UpdateScore()
     self._merge = merge
     self._integralPixels = integralPixels
+
+  def _Speed(self):
+    if self._speeds:
+      return sum(self._speeds) / len(self._speeds)
+    return 0
 
   def Accept(self, event):
     return (event.type == self.event_type and
@@ -190,6 +201,8 @@ class AbstractAxisValidator(AbstractValidator):
     if self._roughness_check:
       roughness = sum(self._roughnesses)
       self.score = self.score * self._roughness_check.Compare(roughness)
+    if self._speed_check:
+      self.score = self.score * self._speed_check.Compare(self._Speed())
     self.score = self.score * self._ScoreTimestamps()
     if self.score == 0:
       self.score = False
@@ -204,13 +217,13 @@ class AbstractAxisValidator(AbstractValidator):
 
   def Validate(self, event):
     self._roughnesses.append(event.Roughness())
+    self._speeds.append(event.Speed())
     self._AddDistance(event)
     self._x = self._x + event.dx
     self._y = self._y + event.dy
     self._z = self._z + event.dz
     self._ValidateTimestamps(event)
     self._UpdateScore()
-
 
   def TypeString(self):
     return self.event_type
@@ -229,6 +242,9 @@ class AbstractAxisValidator(AbstractValidator):
     if self._roughness_check:
       valuators.append("r:{0:.4g}".format(sum(self._roughnesses)) +
                        str(self._roughness_check))
+    if self._speed_check:
+      valuators.append("s:{0:.4g}".format(self._Speed()) +
+                       str(self._speed_check))
     if self._start_check:
       valuators.append("start:" + str(self._start) + str(self._start_check))
     if self._end_check:
