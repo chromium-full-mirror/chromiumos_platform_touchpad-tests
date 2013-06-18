@@ -12,8 +12,9 @@ import os
 import sys
 import traceback
 
-from gesture_log import GestureLog
 from mtreplay import MTReplay
+from mtlib import Log
+from mtlib.gesture_log import GestureLog
 from os import path
 from test_case import TestCase
 
@@ -23,9 +24,8 @@ class TestRunner(object):
   All test results are returned in a result structure containing logs,
   validation results, errors, the generated gestures and the final score.
   """
-  def __init__(self, tests_dir, xorg_conf_path=None):
+  def __init__(self, tests_dir):
     self.tests_dir = tests_dir
-    self.xorg_conf_path = xorg_conf_path
 
   def RunTest(self, test_case):
     """
@@ -77,19 +77,21 @@ class TestRunner(object):
       return out
 
     try:
-      properties = json.dumps(test_case.gesture_props)
-      replay = MTReplay(test_case.platform_dat_file, test_case.device_class)
-      log = GestureLog(replay.Replay(test_case.log_file, properties, True))
+      replay = MTReplay()
+      events = Log(evdev=test_case.log_file)
+      replay_results = replay.Replay(events, test_case.gesture_props,
+                                     test_case.platform)
+      log = replay_results.gestures
 
-      out["logs"]["evdev"] = replay.evdev_log
-      out["logs"]["gestures"] = replay.gestures_log
-      out["logs"]["activity"] = replay.activity_log
+      out["logs"]["evdev"] = replay_results.evdev_log
+      out["logs"]["gestures"] = replay_results.gestures_log
+      out["logs"]["activity"] = replay_results.log.activity
       out["events"] = "\n".join(map(lambda e: str(e), log.events))
       out["gestures"] = "\n".join(map(lambda g: str(g), log.gestures))
 
       # look for errors in the gestures library output
       errors = []
-      for line in replay.gestures_log.splitlines():
+      for line in replay_results.gestures_log.splitlines():
         if line.startswith("ERROR:"):
           errors.append(line)
 
@@ -114,9 +116,10 @@ class TestRunner(object):
 
   def RunGDB(self, glob):
     test_case = self.DiscoverTestCases(glob)[0]
-    properties = json.dumps(test_case.gesture_props)
-    replay = MTReplay(test_case.platform_dat_file, test_case.device_class)
-    replay.Replay(test_case.log_file, properties, True, gdb_mode=True)
+    replay = MTReplay()
+    events = Log(evdev=test_case.log_file)
+    replay_results = replay.Replay(events, test_case.gesture_props,
+                                   test_case.platform, gdb=True)
 
   def RunAll(self, glob="all"):
     """
@@ -149,8 +152,7 @@ class TestRunner(object):
     for platform in self._DiscoverPlatforms():
       files = ListDirRecursive(self.tests_dir, platform)
       log_files = fnmatch.filter(files, "*.log")
-      test_cases = map(lambda f: TestCase(self.tests_dir, f,
-                                          self.xorg_conf_path),
+      test_cases = map(lambda f: TestCase(self.tests_dir, f),
                        log_files)
       all_cases.extend(test_cases)
 
@@ -161,8 +163,7 @@ class TestRunner(object):
 
   def _DiscoverPlatforms(self):
     def is_platform(platform):
-      return path.isdir(path.join(self.tests_dir, platform)) and \
-             path.exists(path.join(self.tests_dir, platform, "platform.dat"))
+      return path.isdir(path.join(self.tests_dir, platform))
     return filter(is_platform, os.listdir(self.tests_dir))
 
 

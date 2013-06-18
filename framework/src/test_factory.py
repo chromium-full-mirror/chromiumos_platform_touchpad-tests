@@ -5,7 +5,8 @@
 # This module provides the TestFactory class to create new tests based upon
 # an activity and cmt log.
 
-from gesture_log import GestureLog
+from mtlib.gesture_log import GestureLog
+from mtlib import Log
 from mtreplay import MTReplay
 from test_case import TestCase
 import datetime
@@ -13,6 +14,7 @@ import decimal
 import json
 import math
 import os
+import shutil
 
 new_test_template = """\
 # Copyright (c) %d The Chromium OS Authors. All rights reserved.
@@ -54,9 +56,8 @@ class TestFactory(object):
     "Tap Enable"
   ]
 
-  def __init__(self, tests_dir, xorg_conf_dir):
+  def __init__(self, tests_dir):
     self.tests_dir = tests_dir
-    self.xorg_conf_dir = xorg_conf_dir
 
   def _ValidateGestures(self, replay_log, original_log):
     if len(replay_log.gestures) != len(original_log.gestures):
@@ -76,23 +77,13 @@ class TestFactory(object):
     the events from the activity/cmt log file and also provides a template for
     the validator.
     """
-    case = TestCase(self.tests_dir, name, self.xorg_conf_dir)
-
-    if not os.path.exists(case.platform_dat_file):
-      print "Platform does not exist (missing platform.dat)"
-      return None
+    case = TestCase(self.tests_dir, name)
 
     activity_log = open(activity_file).read()
 
     # make sure the precision is enough
     decimal.setcontext(decimal.Context(prec=8))
     activity = json.loads(activity_log, parse_float=decimal.Decimal)
-
-    # extract from/to times from activity log
-    hwstates = filter(lambda e: e["type"] == "hardwareState",
-                      activity["entries"])
-    trim_from = hwstates[0]["timestamp"]
-    trim_to = hwstates[-1]["timestamp"]
 
     # extract user defined properties
     properties = activity["properties"]
@@ -115,14 +106,15 @@ class TestFactory(object):
 
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
-    # trim event log file
-    replay = MTReplay(case.platform_dat_file, case.device_class)
-    replay.Trim(cmt_file, case.log_file, trim_from, trim_to, gdb)
+    # copy event log file
+    shutil.copy(cmt_file, case.log_file)
 
-    properties_str = json.dumps(case.gesture_props)
-    replay = MTReplay(case.platform_dat_file, case.device_class)
-    replay_data = replay.Replay(case.log_file, properties_str, True)
-    replay_log = GestureLog(replay_data)
+    # test replay
+    replay = MTReplay()
+    events = Log(evdev=case.log_file)
+    replay_results = replay.Replay(events, case.gesture_props,
+                                   case.platform)
+    replay_log = replay_results.gestures
 
     # only create new module if this test case is not using the module
     # from commons

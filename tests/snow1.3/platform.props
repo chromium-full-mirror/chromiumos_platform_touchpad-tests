@@ -6,8 +6,5 @@
 		"Max Allowed Pressure Change Per Sec": 800,
 		"Max Hysteresis Pressure Per Sec": 600
 	},
-	"xorg": {
-		"file": "50-touchpad-cmt-daisy.conf",
-		"identifiers": ["touchpad daisy", "touchpad daisy cyapa"]
-	}
+	"platform": "snow-2.3"
 }

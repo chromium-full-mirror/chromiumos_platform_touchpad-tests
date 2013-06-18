@@ -14,7 +14,7 @@ import os
 import sys
 
 from mtedit import MTEdit
-from mtlib import Log
+from mtlib.log import Log
 
 from table import Table
 from test_case import TestCase
@@ -97,7 +97,7 @@ def Compile():
 
 def Verify(device, glob):
   verifier = TestVerifier(os.environ["TESTS_DIR"], device)
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+  runner = TestRunner(os.environ["TESTS_DIR"])
   cases = runner.DiscoverTestCases(glob)
 
   for case in cases:
@@ -110,7 +110,7 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
   if not autotest:
     Compile()
   print "Running tests..."
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+  runner = TestRunner(os.environ["TESTS_DIR"])
   results = runner.RunAll(glob)
 
   # load reference
@@ -190,7 +190,7 @@ def Get(test_name, what, file=None):
     data = json.load(open(file))
     results = data[test_name]
   else:
-    runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+    runner = TestRunner(os.environ["TESTS_DIR"])
     data = runner.RunAll(test_name)
     results = data[test_name]
 
@@ -209,7 +209,7 @@ def Get(test_name, what, file=None):
 
 def GDB(test_name):
   Compile()
-  runner = TestRunner(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+  runner = TestRunner(os.environ["TESTS_DIR"])
   data = runner.RunGDB(test_name)
 
 def Add(testname, activity_log, event_log, gdb):
@@ -217,7 +217,7 @@ def Add(testname, activity_log, event_log, gdb):
   Adds a new test case.
   """
   # determine test name from activity_log name
-  factory = TestFactory(os.environ["TESTS_DIR"], os.environ["XORG_CONF_DIR"])
+  factory = TestFactory(os.environ["TESTS_DIR"])
   case = factory.CreateTest(testname, activity_log, event_log, gdb)
   if case:
     print "Test \"" + case.name + "\" created"
@@ -288,7 +288,7 @@ def Main():
     if options.noedit:
       log = original_log
     else:
-      editor = MTEdit(persistent=False)
+      editor = MTEdit()
       log = editor.Edit(original_log)
 
     # write to temporary files
@@ -323,7 +323,7 @@ def Main():
       tmp.write(activity)
       tmp.flush()
       log = Log(tmp.name, options)
-      editor = MTEdit(persistent=False)
+      editor = MTEdit()
       editor.View(log)
     else:
       Get(test_name, view)
