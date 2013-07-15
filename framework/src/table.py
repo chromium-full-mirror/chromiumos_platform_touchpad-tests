@@ -77,7 +77,7 @@ class Table(object):
     td_format = (self.prefix + "| " +
                  " | ".join(["{%d:<%d}" % (i, c)
                              for i, c in enumerate(column_sizes)]) +
-                 " |")
+                 " |\x1b[0m")
     tf_format = (self.prefix + "+-" +
                  "-+-".join(["-"*c for c in column_sizes]) +
                  "-+")
