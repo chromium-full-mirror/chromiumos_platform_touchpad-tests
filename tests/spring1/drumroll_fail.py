@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 from fuzzy_check import FuzzyCheck
-import gesture_log
+import mtlib.gesture_log
 from validators import *
 
 def Validate(raw, events, gestures):
@@ -10,7 +10,7 @@ def Validate(raw, events, gestures):
   # Most important thing about this test: make sure that we don't get any motion
   # after the original finger departs
   for gs in gestures:
-    if isinstance(gs, gesture_log.MotionGesture):
+    if isinstance(gs, mtlib.gesture_log.MotionGesture):
       if gs.end > 699.14048:
         return False, ('Error: Move end time is too late: %f' % gs.end)
   fuzzy.expected = [

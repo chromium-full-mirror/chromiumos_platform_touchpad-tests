@@ -2,7 +2,7 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 from fuzzy_check import FuzzyCheck
-import gesture_log
+import mtlib.gesture_log
 from validators import *
 
 # originally generated gestures:
@@ -51,7 +51,7 @@ def Validate(raw, events, gestures):
       noteFinger(finger, entry['timestamp'])
 
   for gesture in events:
-    if not isinstance(gesture, gesture_log.MotionGesture):
+    if not isinstance(gesture, mtlib.gesture_log.MotionGesture):
       continue
     if not (isValidFingerTime(gesture.start) and
             isValidFingerTime(gesture.end)):

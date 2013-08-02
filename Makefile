@@ -11,7 +11,7 @@ export DESTDIR
 ifeq ($(origin SYSROOT), undefined)
 	XORG_CONF_DIR=../xorg-conf
 else
-	XORG_CONF_DIR=$(SYSROOT)/etc/X11/xorg.conf.d
+	XORG_CONF_DIR=$(CROS_WORKON_SRCROOT)/src/platform/xorg-conf
 endif
 
 all: framework
@@ -37,10 +37,10 @@ install:
 				\*/:\* \) -exec install -D -m 0755 \{\} $(DESTDIR)/\{\} \; ; \
 	done
 
-	mkdir -p $(DESTDIR)/xorg-conf-files/
+	mkdir -p $(DESTDIR)/xorg-conf/
 	for xorgfile in $(XORG_CONF_DIR)/* ; do \
 		install -D $$xorgfile \
-			$(DESTDIR)/xorg-conf-files/$(shell basename $$xorgfile); \
+			$(DESTDIR)/xorg-conf/$(shell basename $$xorgfile); \
 	done
 
 setup-in-place:

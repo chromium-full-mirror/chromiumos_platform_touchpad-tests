@@ -8,6 +8,7 @@ tests:
 	PYTHONPATH=src python src/tests/all_tests.py
 
 install:
+	install -D -m 0755 src/fuzzy_check.py  $(DESTDIR)/framework/fuzzy_check.py
 	install -D -m 0755 src/main.py         $(DESTDIR)/framework/main.py
 	install -D -m 0755 src/table.py        $(DESTDIR)/framework/table.py
 	install -D -m 0755 src/validators.py   $(DESTDIR)/framework/validators.py
