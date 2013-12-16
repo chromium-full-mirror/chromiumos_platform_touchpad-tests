@@ -60,11 +60,9 @@ def Validate(raw, events, gestures):
     ButtonUpValidator(1),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
-    ButtonDownValidator(1),
-    ButtonUpValidator(1),
   ]
   fuzzy.unexpected = [
-    MotionValidator("== 0 ~ 10"),
-    FlingStopValidator("<30"),
+    MotionValidator("<10 ~ 10"),
+    FlingStopValidator("<40"),
   ]
   return fuzzy.Check(gestures)

@@ -19,3 +19,7 @@ def Validate(raw, events, gestures):
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)
+
+# Whether a left or right click should happen is debatable.
+# Disable test for now.
+Validate.disabled = True

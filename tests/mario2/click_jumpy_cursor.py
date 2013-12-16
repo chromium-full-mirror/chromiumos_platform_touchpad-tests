@@ -25,3 +25,8 @@ def Validate(raw, events, gestures):
     FlingStopValidator(">=0"),
   ]
   return fuzzy.Check(gestures)
+
+# This test seems to depend on obsolete behavior:
+# there is only one physical click in this log. The type of click
+# at the end is debatable though.
+Validate.disabled = True

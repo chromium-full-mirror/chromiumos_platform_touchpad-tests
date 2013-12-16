@@ -34,3 +34,6 @@ def Validate(raw, events, gestures):
     ScrollValidator("< 65"),
   ]
   return fuzzy.Check(gestures)
+
+# this behavior is currently not supported by the gesture recognizer
+Validate.disabled = True
