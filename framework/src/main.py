@@ -151,8 +151,6 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
       if value["result"] == "success":
         msg = "success" if value["score"] >= 0.5 else "bad"
         return "%s (%.4f)" % (msg, value["score"])
-      elif value["disabled"]:
-        return "disabled"
       else:
         return value["result"]
 
@@ -205,21 +203,23 @@ def Get(test_name, what, file=None):
     print results["gestures"]
   elif what == "events":
     print results["events"]
-  elif what == "return-activity":
-    return results["logs"]["activity"]
+  elif what == "activity":
+    log = Log(activity=results["logs"]["activity"])
+    editor = MTEdit()
+    editor.View(log)
 
 def GDB(test_name):
   Compile()
   runner = TestRunner(os.environ["TESTS_DIR"])
   data = runner.RunGDB(test_name)
 
-def Add(testname, activity_log, event_log, gdb):
+def Add(testname, log, gdb):
   """
   Adds a new test case.
   """
   # determine test name from activity_log name
   factory = TestFactory(os.environ["TESTS_DIR"])
-  case = factory.CreateTest(testname, activity_log, event_log, gdb)
+  case = factory.CreateTest(testname, log, gdb)
   if case:
     print "Test \"" + case.name + "\" created"
 
@@ -286,10 +286,6 @@ def Main():
   logging.basicConfig(level=level)
 
   if options.create:
-    # create temporary files for storing activity and evdev log
-    tmp = NamedTemporaryFile("w")
-    tmp_evdev = NamedTemporaryFile("w")
-
     # obtain trimmed log data
     original_log = Log(options.create, options)
     if options.noedit:
@@ -298,18 +294,8 @@ def Main():
       editor = MTEdit()
       log = editor.Edit(original_log)
 
-    # write to temporary files
-    tmp.write(log.activity)
-    tmp.flush()
-    tmp_evdev.write(log.evdev)
-    tmp_evdev.flush()
-
     # pass to touchtests
-    Add(test_name, tmp.name, tmp_evdev.name, options.gdb)
-
-    # cleanup
-    tmp.close()
-    tmp_evdev.close()
+    Add(test_name, log, options.gdb)
 
   elif options.view:
     view = options.view
@@ -323,17 +309,7 @@ def Main():
       view = "activity-log"
     elif view == "a":
       view = "activity"
-
-    if view == "activity":
-      activity = Get(test_name, "return-activity")
-      tmp = NamedTemporaryFile("w")
-      tmp.write(activity)
-      tmp.flush()
-      log = Log(tmp.name, options)
-      editor = MTEdit()
-      editor.View(log)
-    else:
-      Get(test_name, view)
+    Get(test_name, view)
   elif options.gdb:
     GDB(test_name)
   else:

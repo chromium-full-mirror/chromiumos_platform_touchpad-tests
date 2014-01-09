@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -67,6 +67,11 @@ class TestRunner(object):
 
     dbg_log = logging.getLogger(test_case.name)
 
+    if not test_case.IsComplete():
+      out["result"] = "incomplete"
+      out["disabled"] = True
+      return out
+
     result = test_case.Check()
     if result is not True:
       out["error"] = result
@@ -76,6 +81,7 @@ class TestRunner(object):
     out["description"] = test_case.description
 
     if test_case.disabled:
+      out["result"] = "disabled"
       out["disabled"] = True
       return out
 
@@ -143,37 +149,7 @@ class TestRunner(object):
     return results
 
   def DiscoverTestCases(self, glob=None):
-    """
-    Returns a list of test cases that matching the glob.
-    """
-    def ListDirRecursive(rootdir, sub_path=""):
-      result = []
-      for file in os.listdir(path.join(rootdir, sub_path)):
-        if file[0] == ".":
-          continue
-        if path.isdir(path.join(rootdir, sub_path, file)):
-          result.extend(ListDirRecursive(rootdir, path.join(sub_path, file)))
-        else:
-          result.append(path.join(sub_path, file))
-      return result
-
-    all_cases = []
-    for platform in self._DiscoverPlatforms():
-      files = ListDirRecursive(self.tests_dir, platform)
-      log_files = fnmatch.filter(files, "*.log")
-      test_cases = map(lambda f: TestCase(self.tests_dir, f),
-                       log_files)
-      all_cases.extend(test_cases)
-
-    if glob is not None and glob != "all":
-      all_cases = filter(lambda c: fnmatch.fnmatch(c.name, glob), all_cases)
-
-    return all_cases
-
-  def _DiscoverPlatforms(self):
-    def is_platform(platform):
-      return path.isdir(path.join(self.tests_dir, platform))
-    return filter(is_platform, os.listdir(self.tests_dir))
+    return TestCase.DiscoverTestCases(self.tests_dir, glob)
 
 
 def ParallelTestRunnerProcess(case, verbose=False):

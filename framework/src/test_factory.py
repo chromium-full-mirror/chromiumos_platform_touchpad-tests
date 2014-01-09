@@ -71,7 +71,7 @@ class TestFactory(object):
     return True
 
 
-  def CreateTest(self, name, activity_file, cmt_file, gdb=False):
+  def CreateTest(self, name, log, gdb=False):
     """
     Create a new test. This method will create all necessary files to replay
     the events from the activity/cmt log file and also provides a template for
@@ -79,11 +79,9 @@ class TestFactory(object):
     """
     case = TestCase(self.tests_dir, name)
 
-    activity_log = open(activity_file).read()
-
     # make sure the precision is enough
     decimal.setcontext(decimal.Context(prec=8))
-    activity = json.loads(activity_log, parse_float=decimal.Decimal)
+    activity = json.loads(log.activity, parse_float=decimal.Decimal)
 
     # extract user defined properties
     properties = activity["properties"]
@@ -107,12 +105,11 @@ class TestFactory(object):
     json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
 
     # copy event log file
-    shutil.copy(cmt_file, case.log_file)
+    open(case.log_file, "w").write(log.evdev)
 
     # test replay
     replay = MTReplay()
-    events = Log(evdev=case.log_file)
-    replay_results = replay.Replay(events, case.gesture_props,
+    replay_results = replay.Replay(log, case.gesture_props,
                                    case.platform)
     replay_log = replay_results.gestures
 
@@ -123,7 +120,7 @@ class TestFactory(object):
       year = datetime.date.today().year
       open(case.case_module_file, "w").write(new_test_template % (year, report))
 
-    self._CheckCreatedTest(case, activity_log, replay_log)
+    self._CheckCreatedTest(case, log.activity, replay_log)
 
     return case
 

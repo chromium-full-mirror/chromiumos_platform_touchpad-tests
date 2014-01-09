@@ -52,21 +52,18 @@ class TestCase(object):
   _platform_props = "platform.props"
   _common_folder = "common"
 
-  def __init__(self, tests_path, log_file_or_name):
+  def __init__(self, tests_path, name):
     self.tests_path = tests_path
     self._ignore_properties = []
 
-    if not log_file_or_name.endswith(".log"):
-      log_file = log_file_or_name + ".log"
-    else:
-      log_file = log_file_or_name
-
-    (log_path, filename) = path.split(log_file)
-    self.testname = path.splitext(filename)[0]
-    self.path = log_path.split(os.sep)
-    self.path.append(self.testname)
+    # remove extension to get test name in case a filename was provided
+    self.testname = path.splitext(name)[0]
+    self.path = self.testname.split(os.sep)
     self.properties = None
     self.platform = None
+
+  def IsComplete(self):
+    return path.exists(self.log_file) and (self.module is not None)
 
   def Check(self):
     """
@@ -134,6 +131,11 @@ class TestCase(object):
   def description(self):
     module = self.module
     return module.Validate.__doc__ if module.Validate.__doc__ else ""
+
+  @property
+  def disabled(self):
+    module = self.module
+    return hasattr(module.Validate, "disabled") and module.Validate.disabled
 
   @property
   def disabled(self):
@@ -210,3 +212,50 @@ class TestCase(object):
 
   def _PlatformFile(self, filename):
     return os.path.join(self.tests_path, self.path[0], filename)
+
+  @staticmethod
+  def DiscoverTestCases(tests_dir, glob=None):
+    """
+    Returns a list of test cases that matching the glob.
+    """
+    def ListDirRecursive(rootdir, sub_path=""):
+      result = []
+      target_path = path.join(rootdir, sub_path)
+      if not path.exists(target_path):
+        return []
+      for file in os.listdir(target_path):
+        if file[0] == ".":
+          continue
+        if path.isdir(path.join(rootdir, sub_path, file)):
+          result.extend(ListDirRecursive(rootdir, path.join(sub_path, file)))
+        else:
+          result.append(path.join(sub_path, file))
+      return result
+
+    def ListValidators(tests_dir, platform):
+      files = ListDirRecursive(path.join(tests_dir, platform), "")
+      py_files = fnmatch.filter(files, "*.py")
+      test_names = map(lambda p: path.splitext(p)[0], py_files)
+      return test_names
+
+    common_validators = ListValidators(tests_dir, "common")
+    all_cases = []
+    for platform in TestCase.DiscoverPlatforms(tests_dir):
+      validators = ListValidators(tests_dir, platform)
+      validators.extend(common_validators)
+      validators = set(validators)
+
+      test_cases = map(lambda f: TestCase(tests_dir, path.join(platform, f)),
+                       validators)
+      all_cases.extend(test_cases)
+
+    if glob is not None and glob != "all":
+      all_cases = filter(lambda c: fnmatch.fnmatch(c.name, glob), all_cases)
+
+    return all_cases
+
+  @staticmethod
+  def DiscoverPlatforms(tests_dir):
+    def is_platform(platform):
+      return platform[0] != "." and path.isdir(path.join(tests_dir, platform))
+    return filter(is_platform, os.listdir(tests_dir))

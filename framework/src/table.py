@@ -112,7 +112,7 @@ class Table(object):
             color = "31"
           elif "bad" in value:
             color = "33"
-          elif "disabled" in value:
+          elif "disabled" in value or "incomplete" in value:
             color = "34"
 
           data.append(" " + value + " ")
