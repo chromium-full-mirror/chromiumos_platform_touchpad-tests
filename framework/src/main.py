@@ -20,6 +20,7 @@ from mtlib.log import Log
 from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
+from test_robot import RobotTestGenerator
 from test_runner import ParallelTestRunner as TestRunner
 
 
@@ -266,10 +267,27 @@ def Main():
                     help="Run in autotest mode. Skips recompilation.")
   parser.add_option("--gdb",
                     dest="gdb", action="store_true", default=False,
-                    help="Run the test case in GDB")
+                    help="Run the test case in GDB"),
   parser.add_option("--verbose",
                     dest="verbose", action="store_true", default=False,
-                    help="Verbose debug output")
+                    help="Verbose debug output"),
+  parser.add_option("--robot",
+                    dest="robot", default=None,
+                    help="Instruct robot to generate test cases")
+  parser.add_option("--overwrite",
+                    dest="overwrite", action="store_true", default=False,
+                    help="(use with --robot) Overwrite existing tests")
+  parser.add_option("--no-calib",
+                    dest="nocalib", action="store_true", default=False,
+                    help="(use with --robot) Skip calibration step.")
+  parser.add_option("--manual-fingertips",
+                    dest="manual_fingertips", action="store_true",
+                    default=False,
+                    help="(use with --robot) Use fingertips that are present.")
+  parser.add_option("--slow",
+                    dest="slow", action="store_true", default=False,
+                    help="(use with --robot) Force slow movement.")
+
   (options, args) = parser.parse_args()
   options.download = False  # For compatibility with mtedit
   options.screenshot = False  # For compatibility with mtedit
@@ -312,6 +330,10 @@ def Main():
     Get(test_name, view)
   elif options.gdb:
     GDB(test_name)
+  elif options.robot:
+    generator = RobotTestGenerator(options.robot, not options.nocalib,
+        options.slow, options.manual_fingertips, os.environ["TESTS_DIR"])
+    generator.GenerateAll(test_name, options.overwrite)
   else:
     Run(test_name, options.out, options.ref, options.autotest)
 

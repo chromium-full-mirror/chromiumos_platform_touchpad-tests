@@ -149,8 +149,8 @@ class TestCase(object):
       module_file = self.common_module_file
     if not path.exists(module_file):
       return None
-
-    return imp.load_source("validator", module_file)
+    name = os.path.splitext(os.path.basename(module_file))[0]
+    return imp.load_source(name, module_file)
 
   @property
   def gesture_props(self):
@@ -175,6 +175,12 @@ class TestCase(object):
     if self.properties is None:
       self._LoadProperties()
     return self.properties.get("device_class")
+
+  @property
+  def instruct_robot(self):
+    if "InstructRobot" in self.module.__dict__:
+      return self.module.InstructRobot
+    return None
 
   def _LoadProperties(self):
     self.properties = { "gestures": {}, "validator": {}}
@@ -215,9 +221,7 @@ class TestCase(object):
 
   @staticmethod
   def DiscoverTestCases(tests_dir, glob=None):
-    """
-    Returns a list of test cases that matching the glob.
-    """
+    """ Returns a list of test cases that matching the glob. """
     def ListDirRecursive(rootdir, sub_path=""):
       result = []
       target_path = path.join(rootdir, sub_path)
