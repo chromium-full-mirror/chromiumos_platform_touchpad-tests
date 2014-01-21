@@ -61,6 +61,7 @@ class TestCase(object):
     self.path = self.testname.split(os.sep)
     self.properties = None
     self.platform = None
+    self._module = None
 
   def IsComplete(self):
     return path.exists(self.log_file) and (self.module is not None)
@@ -143,11 +144,34 @@ class TestCase(object):
     return hasattr(module.Validate, "disabled") and module.Validate.disabled
 
   @property
+  def is_virtual(self):
+    if self.module_file:
+      module_name = path.basename(path.splitext(self.module_file)[0])
+      log_name = path.basename(path.splitext(self.log_file)[0])
+      return log_name != module_name
+    return True
+
+  @property
+  def module_file(self):
+    def FindHierachicalModuleFile(file):
+      if path.exists(file + ".py"):
+        return file + ".py"
+      elif '_' in file:
+        return FindHierachicalModuleFile(file[:file.rfind("_")])
+      return None
+
+    module_file = FindHierachicalModuleFile(self._TestCaseFile(""))
+    if module_file:
+      return module_file
+    module_file = FindHierachicalModuleFile(self._CommonFile(""))
+    if module_file:
+      return module_file
+    return None
+
+  @property
   def module(self):
-    module_file = self.case_module_file
-    if not path.exists(module_file):
-      module_file = self.common_module_file
-    if not path.exists(module_file):
+    module_file = self.module_file
+    if not module_file:
       return None
     name = os.path.splitext(os.path.basename(module_file))[0]
     return imp.load_source(name, module_file)
@@ -236,22 +260,25 @@ class TestCase(object):
           result.append(path.join(sub_path, file))
       return result
 
-    def ListValidators(tests_dir, platform):
+    def ListCases(tests_dir, platform):
       files = ListDirRecursive(path.join(tests_dir, platform), "")
       py_files = fnmatch.filter(files, "*.py")
+      log_files = fnmatch.filter(files, "*.log")
       test_names = map(lambda p: path.splitext(p)[0], py_files)
-      return test_names
+      test_names.extend(map(lambda p: path.splitext(p)[0], log_files))
+      return set(test_names)
 
-    common_validators = ListValidators(tests_dir, "common")
+    common_validators = ListCases(tests_dir, "common")
     all_cases = []
     for platform in TestCase.DiscoverPlatforms(tests_dir):
-      validators = ListValidators(tests_dir, platform)
-      validators.extend(common_validators)
-      validators = set(validators)
+      validators = ListCases(tests_dir, platform)
+      validators.update(common_validators)
 
       test_cases = map(lambda f: TestCase(tests_dir, path.join(platform, f)),
                        validators)
       all_cases.extend(test_cases)
+
+    all_cases = filter(lambda c: c.module, all_cases)
 
     if glob is not None and glob != "all":
       all_cases = filter(lambda c: fnmatch.fnmatch(c.name, glob), all_cases)

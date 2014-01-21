@@ -11,6 +11,43 @@ import re
 
 from fuzzy_check import FuzzyComparator
 
+def Disabled(fn):
+  """
+  Function decorator to disable a test case.
+
+    @Disabled
+    def Validate():
+      [...]
+  """
+  fn.disabled = True
+  return fn
+
+def FingerSizes(*args):
+  """
+  Function decorator to define finger sizes on the robot instruction method.
+
+    @FingerSizes(1, 2)
+    def InstructRobot(robot):
+      [...]
+  """
+  def Wrapper(fn):
+    fn.finger_sizes = args
+    return fn
+  return Wrapper
+
+def CustomFingers(fn):
+  """
+  Function decorator to enforce custom finger setup for an robot instruction
+  method. The robot will start with no finger tips attached and this method
+  has to take care of setting up finger tips as well as cleaning them up again.
+
+    @CustomFingers
+    def InstructRobot(robot):
+      [...]
+  """
+  fn.finger_sizes = None
+  return fn
+
 class AbstractValidator(object):
   """
   Base class provides the possibility to Validate start/end times of

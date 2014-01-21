@@ -30,7 +30,9 @@ class TestRobot(object):
     self.slow = slow
     self.manual_fingertips = manual_fingertips
     self.remote = CrOSRemote(self.ip)
+    self.current_finger_size = None
     self.FindRobotDir()
+
     if calib:
       UserConfirm("Starting calibration for new device")
       cmd = "python calibrate_for_new_device.py regression"
@@ -52,17 +54,58 @@ class TestRobot(object):
     print "Cannot find robot directory"
     sys.exit(1)
 
+  def CleanUp(self):
+    if self.manual_fingertips:
+      return
+    if self.current_finger_size is not None:
+      print "###### Removing %d finger tips!" % self.current_finger_size
+      self.Execute("python manipulate_fingertips.py 1 1 1 1 %d False"
+                   % self.current_finger_size)
+    self.current_finger_size = None
+
+  def SetupFingerSize(self, size):
+    if self.manual_fingertips:
+      return
+
+    if self.current_finger_size != size:
+      if self.current_finger_size is not None:
+        print "###### Removing %d finger tips!" % self.current_finger_size
+        self.Execute("python manipulate_fingertips.py 1 1 1 1 %d False"
+                     % self.current_finger_size)
+      print "###### Picking %d finger tips!" % size
+      self.Execute("python manipulate_fingertips.py 1 1 1 1 %d True"
+                   % size)
+      self.current_finger_size = size
+
   def Line(self, start, end, tips, speed, type):
+    if not self.current_finger_size and not self.manual_fingertips:
+      print "Select finger size before gesture"
+      sys.exit(1)
     if self.slow:
       speed = 5
+    self.Execute("line.py", start, end, tips, (speed, type))
 
-    args = map(lambda s: str(s), chain(start, end, tips, (speed, type)))
-    cmd = "python line.py regression.p " + " ".join(args)
-    self.Execute(cmd)
+  def Tap(self, pos, tips, count):
+    if not self.current_finger_size and not self.manual_fingertips:
+      print "Select finger size before gesture"
+      sys.exit(1)
+    self.Execute("click.py", pos, tips, (count, "tap"))
 
-  def Execute(self, cmd):
+  def Click(self, pos, tips, count, size=1):
+    if self.current_finger_size != None:
+      self.CleanUp()
+    self.Execute("click.py", pos, tips, (size, manual))
+
+  def Execute(self, file, *param_tuples):
+    base = ("python", file, "regression.p")
+    args = map(lambda s: str(s), chain(base, *param_tuples))
+    cmd = " ".join(args)
+
     print "Robot Command:", cmd
-    self.remote.Execute(cmd, self.dir, verbose=True)
+    res = self.remote.Execute(cmd, self.dir, verbose=True)
+    if not res:
+      print "Command Failed:", cmd
+      sys.exit(1)
 
   def ClearLog(self):
     self.remote.Execute(
@@ -98,14 +141,48 @@ class RobotTestGenerator(object):
     if not overwrite:
       cases = filter(lambda c: not c.IsComplete(), cases)
 
-    print "Instructing robot to generate tests:"
+    expanded = []
     for case in cases:
-      print "  - " + case.name
+      if case.is_virtual:
+        continue
+      # per default tests are performed with the finger size 2 only
+      if hasattr(case.instruct_robot, "finger_sizes"):
+        sizes = case.instruct_robot.finger_sizes
+      else:
+        sizes = [2]
+      # append a new test case for each finger size
+      if sizes is None:
+        # this test takes care of finger size setup
+        expanded.append((TestCase(self.tests_dir, case.name), None))
+        continue
+      for size in sizes:
+        name = case.name + "_s" + str(size)
+        expanded.append((TestCase(self.tests_dir, name), size))
+
+    expanded.sort(key=lambda entry: entry[1])
+
+    print "Instructing robot to generate tests:"
+    for case, fingersize in expanded:
+      if fingersize is None:
+        print "  - %s (custom)" % (case.name)
+      else:
+        print "  - %s (%d)" % (case.name, fingersize)
     UserConfirm()
 
-    for case in cases:
-      module = case.module
+    # run tests with configured finger sizes
+    for case, fingersize in expanded:
+      if fingersize is None:
+        continue
+      self.robot.SetupFingerSize(fingersize)
       self.GenerateCase(case)
+
+    self.robot.CleanUp()
+
+    # run tests that have customized finger size setup
+    for case, fingersize in expanded:
+      if fingersize is None:
+        self.GenerateCase(case)
+
 
   @staticmethod
   def DiscoverRobotCases(tests_dir, glob=None):
