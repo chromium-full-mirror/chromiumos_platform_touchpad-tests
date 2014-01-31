@@ -7,6 +7,7 @@
 from cStringIO import StringIO
 import fnmatch
 import json
+import logging
 import multiprocessing
 import os
 import sys
@@ -64,6 +65,8 @@ class TestRunner(object):
       "score": 0
     }
 
+    dbg_log = logging.getLogger(test_case.name)
+
     result = test_case.Check()
     if result is not True:
       out["error"] = result
@@ -77,10 +80,12 @@ class TestRunner(object):
       return out
 
     try:
-      replay = MTReplay()
+      dbg_log.info("Loading log: %s", test_case.log_file)
       events = Log(evdev=test_case.log_file)
+      dbg_log.info("Starting replay...")
+      replay = MTReplay()
       replay_results = replay.Replay(events, test_case.gesture_props,
-                                     test_case.platform)
+                                     test_case.platform, dbg_log=dbg_log)
       log = replay_results.gestures
 
       out["logs"]["evdev"] = replay_results.evdev_log
@@ -96,19 +101,23 @@ class TestRunner(object):
           errors.append(line)
 
       if errors:
+        dbg_log.info("Found errors in gestures log")
         out["error"] = "\n".join(errors)
         out["result"] = "error"
         return out
 
       # validate the replay results
+      dbg_log.info("Validating...")
       score, validation_log = test_case.module.Validate(log.raw,
           log.events, log.gestures)
 
       out["logs"]["validation"] = validation_log
       out["result"] = "success" if score is not False else "failure"
       out["score"] = score
+      dbg_log.info("Validation result: %s", out["result"])
 
     except:
+      dbg_log.exception("Exception raised")
       out["error"] = traceback.format_exc()
       out["result"] = "error"
 
@@ -167,20 +176,33 @@ class TestRunner(object):
     return filter(is_platform, os.listdir(self.tests_dir))
 
 
-def ParallelTestRunnerProcess(case):
+def ParallelTestRunnerProcess(case, verbose=False):
+  level = logging.INFO if verbose else logging.WARNING
+  logging.basicConfig(level=level)
+
+  logging.info("Starting process for: %s", case.name)
   runner = TestRunner(case.tests_path)
   return (case, runner.RunTest(case))
 
 
+def VerboseParallelTestRunnerProcess(case):
+  return ParallelTestRunnerProcess(case, verbose=True)
+
+
 class ParallelTestRunner(TestRunner):
-  def RunAll(self, glob="all"):
+  def RunAll(self, glob="all", verbose=False):
     """
     Extends TestRunner.RunAll by multiprocessing. The test cases are distributed
     to as many processes as there are cores available.
     """
     pool = multiprocessing.Pool()
     cases = self.DiscoverTestCases(glob)
-    data = pool.map(ParallelTestRunnerProcess, cases)
+    logging.info("Starting multiprocessing pool")
+    if logging.getLogger().isEnabledFor(logging.INFO):
+      data = pool.map(VerboseParallelTestRunnerProcess, cases)
+    else:
+      data = pool.map(ParallelTestRunnerProcess, cases)
+    logging.info("All tests executed")
     pool.terminate()
     results = {}
     for case, result in data:

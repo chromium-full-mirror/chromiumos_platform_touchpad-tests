@@ -8,6 +8,7 @@ from optparse import OptionParser
 from subprocess import Popen, PIPE, STDOUT
 from tempfile import NamedTemporaryFile
 import json
+import logging
 import math
 import multiprocessing
 import os
@@ -266,6 +267,9 @@ def Main():
   parser.add_option("--gdb",
                     dest="gdb", action="store_true", default=False,
                     help="Run the test case in GDB")
+  parser.add_option("--verbose",
+                    dest="verbose", action="store_true", default=False,
+                    help="Verbose debug output")
   (options, args) = parser.parse_args()
   options.download = False  # For compatibility with mtedit
   options.screenshot = False  # For compatibility with mtedit
@@ -277,6 +281,9 @@ def Main():
   else:
     parser.print_help()
     exit(-1)
+
+  level = logging.INFO if options.verbose else logging.WARNING
+  logging.basicConfig(level=level)
 
   if options.create:
     # create temporary files for storing activity and evdev log
