@@ -1,0 +1,25 @@
+# Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+from fuzzy_check import FuzzyCheck
+from validators import *
+
+def Validate(raw, events, gestures):
+  fuzzy = FuzzyCheck()
+  fuzzy.expected = [
+    ButtonDownValidator(1),
+    ButtonUpValidator(1),
+    ButtonDownValidator(4),
+    ButtonUpValidator(4)
+  ]
+  fuzzy.unexpected = [
+    FlingStopValidator("<10"),
+    MotionValidator("<10", merge=True)
+  ]
+  return fuzzy.Check(gestures)
+
+@CustomFingers
+def InstructRobot(robot):
+  robot.Click((0.5, 0.8, 0, 25), (1, 0, 0, 0))
+  robot.Click((0.5, 0.8, 0, 25), (1, 0, 0, 1))
+

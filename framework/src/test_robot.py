@@ -31,6 +31,7 @@ class TestRobot(object):
     self.manual_fingertips = manual_fingertips
     self.remote = CrOSRemote(self.ip)
     self.current_finger_size = None
+    self.current_tip_mask = None
     self.FindRobotDir()
 
     if calib:
@@ -54,58 +55,74 @@ class TestRobot(object):
     print "Cannot find robot directory"
     sys.exit(1)
 
+  def CheckFingersOn(self):
+    if not self.current_finger_size and not self.manual_fingertips:
+      print "Select finger size before gesture"
+      sys.exit(1)
+
+  def CheckFingersOff(self):
+    if self.current_finger_size and not self.manual_fingertips:
+      print "Select finger size before gesture"
+      sys.exit(1)
+
   def CleanUp(self):
     if self.manual_fingertips:
       return
-    if self.current_finger_size is not None:
-      print "###### Removing %d finger tips!" % self.current_finger_size
-      self.Execute("python manipulate_fingertips.py 1 1 1 1 %d False"
-                   % self.current_finger_size)
-    self.current_finger_size = None
 
-  def SetupFingerSize(self, size):
+    if self.current_finger_size is not None:
+      print "### Removing finger tips (size %d)" % self.current_finger_size
+      self.Execute("python manipulate_fingertips.py %s %d False --fast-check"
+                   % (self.current_tip_mask, self.current_finger_size))
+    self.current_finger_size = None
+    self.current_tip_mask = None
+
+  def SetupFingerSize(self, size, tips=(1, 1, 1, 1)):
     if self.manual_fingertips:
       return
+    mask = " ".join(map(lambda i: str(i), tips))
+    fast_check = ""
+    if self.current_finger_size != size or self.current_tip_mask != mask:
+      if (self.current_finger_size is not None
+          and self.current_tip_mask is not None):
+        print "### Removing finger tips (size %d)" % self.current_finger_size
+        self.Execute("python manipulate_fingertips.py %s %d False --fast-check"
+                     % (self.current_tip_mask, self.current_finger_size))
+        fast_check = "--fast-check"
 
-    if self.current_finger_size != size:
-      if self.current_finger_size is not None:
-        print "###### Removing %d finger tips!" % self.current_finger_size
-        self.Execute("python manipulate_fingertips.py 1 1 1 1 %d False"
-                     % self.current_finger_size)
-      print "###### Picking %d finger tips!" % size
-      self.Execute("python manipulate_fingertips.py 1 1 1 1 %d True"
-                   % size)
+      print "### Picking finger tips (size %d)" % size
+      self.Execute("python manipulate_fingertips.py %s %d True %s"
+                   % (mask, size, fast_check))
       self.current_finger_size = size
+      self.current_tip_mask = mask
 
-  def Line(self, start, end, tips, speed, type):
-    if not self.current_finger_size and not self.manual_fingertips:
-      print "Select finger size before gesture"
-      sys.exit(1)
+  def Line(self, start, end, tips, speed, type, delay=0.0):
+    self.CheckFingersOn()
     if self.slow:
       speed = 5
-    self.Execute("line.py", start, end, tips, (speed, type))
+    self.ExecuteScript("line.py", start, end, tips, (speed, type, delay))
 
-  def Tap(self, pos, tips, count):
-    if not self.current_finger_size and not self.manual_fingertips:
-      print "Select finger size before gesture"
-      sys.exit(1)
-    self.Execute("click.py", pos, tips, (count, "tap"))
+  def Tap(self, pos, tips, count, delay=0.0):
+    self.CheckFingersOn()
+    self.ExecuteScript("tap.py", pos, tips, (count, "tap", delay))
 
-  def Click(self, pos, tips, count, size=1):
-    if self.current_finger_size != None:
-      self.CleanUp()
-    self.Execute("click.py", pos, tips, (size, manual))
+  def Click(self, pos, tips):
+    self.CheckFingersOff()
+    self.SetupFingerSize(2, tips)
+    self.ExecuteScript("click.py", pos, tips)
+    self.CleanUp()
 
-  def Execute(self, file, *param_tuples):
-    base = ("python", file, "regression.p")
-    args = map(lambda s: str(s), chain(base, *param_tuples))
-    cmd = " ".join(args)
-
+  def Execute(self, cmd):
     print "Robot Command:", cmd
     res = self.remote.Execute(cmd, self.dir, verbose=True)
     if not res:
       print "Command Failed:", cmd
       sys.exit(1)
+
+  def ExecuteScript(self, file, *param_tuples):
+    base = ("python", file, "regression.p")
+    args = map(lambda s: str(s), chain(base, *param_tuples))
+    cmd = " ".join(args)
+    self.Execute(cmd)
 
   def ClearLog(self):
     self.remote.Execute(
@@ -161,7 +178,7 @@ class RobotTestGenerator(object):
 
     expanded.sort(key=lambda entry: entry[1])
 
-    print "Instructing robot to generate tests:"
+    print "Instructing robot to generate the following tests:"
     for case, fingersize in expanded:
       if fingersize is None:
         print "  - %s (custom)" % (case.name)
