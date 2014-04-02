@@ -22,9 +22,9 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
-@FingerSizes(1)
+@FingerSizes(2)
 def InstructRobot(robot):
   # scroll and fling
-  robot.Line((0.0, 0.3, 0, 30), (1.0, 0.3, 0, 30), (0, 1, 1, 0), 20, "swipe")
+  robot.Line((0.5, 0.05, 0, 30), (0.5, 0.7, 0, 30), (1, 1, 0, 0), 30, "fling", 0.5)
   # fling stop and scroll a little
-  robot.Line((1.0, 0.3, 0, 30), (0.95, 0.3, 0, 30), (0, 1, 1, 0), 1, "basic")
+  robot.Line((0.5, 0.7, 0, 30), (0.5, 0.6, 0, 30), (1, 1, 0, 0), 1, "basic")

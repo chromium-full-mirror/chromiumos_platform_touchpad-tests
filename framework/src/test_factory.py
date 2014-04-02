@@ -70,7 +70,6 @@ class TestFactory(object):
 
     return True
 
-
   def CreateTest(self, name, log, gdb=False):
     """
     Create a new test. This method will create all necessary files to replay
@@ -78,6 +77,10 @@ class TestFactory(object):
     the validator.
     """
     case = TestCase(self.tests_dir, name)
+
+    test_folder = os.path.dirname(case.log_file)
+    if not os.path.exists(test_folder):
+      os.mkdir(test_folder)
 
     # make sure the precision is enough
     decimal.setcontext(decimal.Context(prec=8))

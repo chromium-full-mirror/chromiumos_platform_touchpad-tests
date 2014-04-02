@@ -7,8 +7,8 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    MotionValidator("> 1000 ~ 500"),
-    MotionValidator("> 1000 ~ 500"),
+    MotionValidator("> 200 ~ 200"),
+    MotionValidator("> 200 ~ 200"),
     MotionValidator("> 1000 ~ 500"),
     MotionValidator("> 1000 ~ 500"),
   ]
@@ -17,9 +17,9 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
-@FingerSizes(1, 2)
+@FingerSizes(2)
 def InstructRobot(robot):
-  robot.Line((0.5, 0.1, 0, 20), (0.5, 0.9, 0, 20), (1, 0, 0, 0), 70, "basic")
-  robot.Line((0.5, 0.9, 0, 20), (0.5, 0.1, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.5, 0.1, 0, 20), (0.5, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.5, 0.5, 0, 20), (0.5, 0.1, 0, 20), (1, 0, 0, 0), 70, "basic")
   robot.Line((0.1, 0.5, 0, 20), (0.9, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
   robot.Line((0.9, 0.5, 0, 20), (0.1, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
