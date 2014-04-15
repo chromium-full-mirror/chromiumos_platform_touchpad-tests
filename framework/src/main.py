@@ -15,7 +15,7 @@ import os
 import sys
 
 from mtedit import MTEdit
-from mtlib.log import Log
+from mtlib import Log, PlatformDatabase
 
 from table import Table
 from test_case import TestCase
@@ -224,6 +224,15 @@ def Add(testname, log, gdb):
   if case:
     print "Test \"" + case.name + "\" created"
 
+def AddPlatform(ip):
+  name = PlatformDatabase.RegisterPlatformFromDevice(ip)
+  if not name:
+    return
+  dirname = os.path.join(os.environ["TESTS_DIR"], name)
+  propsfile = os.path.join(dirname, "platform.props")
+  os.mkdir(dirname)
+  open(propsfile, "w").write("{\"platform\": \"%s\"}" % name)
+  print " ", propsfile
 
 def Main():
   """
@@ -287,10 +296,17 @@ def Main():
   parser.add_option("--slow",
                     dest="slow", action="store_true", default=False,
                     help="(use with --robot) Force slow movement.")
+  parser.add_option("--add-platform",
+                    dest="add_platform", default=None,
+                    help="add platform from IP address of remote device.")
 
   (options, args) = parser.parse_args()
   options.download = False  # For compatibility with mtedit
   options.screenshot = False  # For compatibility with mtedit
+
+  if options.add_platform:
+    AddPlatform(options.add_platform)
+    return
 
   if len(args) == 0:
     test_name = "all"
