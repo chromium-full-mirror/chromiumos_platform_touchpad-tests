@@ -89,6 +89,7 @@ def Compile():
 
   dir = os.environ["SRC_DIR"]
   print "Recompiling gestures/libevdev/replay..."
+  print "SRC_DIR is %s" % dir
   process = Popen(["make", "-j", str(multiprocessing.cpu_count()),
                   "in-place"], cwd=dir, stdout=PIPE, stderr=STDOUT)
   ret = process.wait()
