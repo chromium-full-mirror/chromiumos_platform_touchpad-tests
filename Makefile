@@ -8,12 +8,6 @@ OVERLAY=../../third_party/chromiumos-overlay/
 
 export DESTDIR
 
-ifeq ($(origin SYSROOT), undefined)
-	XORG_CONF_DIR=../xorg-conf
-else
-	XORG_CONF_DIR=$(CROS_WORKON_SRCROOT)/src/platform/xorg-conf
-endif
-
 all: framework
 
 clean:
@@ -37,12 +31,6 @@ install:
 				\*/:\* \) -exec install -D -m 0755 \{\} $(DESTDIR)/\{\} \; ; \
 	done
 
-	mkdir -p $(DESTDIR)/xorg-conf/
-	for xorgfile in $(XORG_CONF_DIR)/* ; do \
-		install -D $$xorgfile \
-			$(DESTDIR)/xorg-conf/$(shell basename $$xorgfile); \
-	done
-
 setup-in-place:
 	OUT=. $(MAKE) -C ../mttools setup-in-place
 
@@ -50,7 +38,6 @@ setup-in-place:
 	# original folders. So there is no need to reinstall after changes.
 	install -D touchtests $(LOCALDESTDIR)/touchtests
 
-	ln -sfn $(shell readlink -f $(XORG_CONF_DIR)) local-install/xorg-conf-files
 	ln -sfn ../framework/src local-install/framework
 	ln -sfn ../tests local-install/tests
 	ln -sf $(LOCALDESTDIR)/touchtests /usr/bin/touchtests
