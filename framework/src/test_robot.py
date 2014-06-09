@@ -12,9 +12,6 @@ from test_case import TestCase
 from test_factory import TestFactory
 
 
-Options = namedtuple('Options', 'new')
-
-
 def UserConfirm(msg=None):
   if msg:
     print msg
@@ -131,8 +128,7 @@ class TestRobot(object):
   def GetLog(self):
     replay = MTReplay()
 
-    options = object()
-    log = DeviceLog(self.ip, Options(new=True))
+    log = DeviceLog(self.ip, new=True)
     return replay.TrimEvdev(log)
 
 class RobotTestGenerator(object):

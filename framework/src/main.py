@@ -231,7 +231,8 @@ def AddPlatform(ip):
     return
   dirname = os.path.join(os.environ["TESTS_DIR"], name)
   propsfile = os.path.join(dirname, "platform.props")
-  os.mkdir(dirname)
+  if not os.path.exists(dirname):
+    os.mkdir(dirname)
   open(propsfile, "w").write("{\"platform\": \"%s\"}" % name)
   print " ", propsfile
 
