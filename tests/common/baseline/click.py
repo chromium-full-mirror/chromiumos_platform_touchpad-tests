@@ -18,8 +18,8 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
-@CustomFingers
+@CustomFinger
 def InstructRobot(robot):
-  robot.Click((0.5, 0.8, 0, 25), (1, 0, 0, 0))
-  robot.Click((0.5, 0.8, 0, 25), (1, 0, 0, 1))
+  robot.Click((0.5, 0.9, -45, 25), (1, 0, 0, 0))
+  robot.Click((0.5, 0.9, -45, 25), (1, 0, 1, 0))
 

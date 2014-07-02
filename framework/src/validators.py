@@ -22,30 +22,30 @@ def Disabled(fn):
   fn.disabled = True
   return fn
 
-def FingerSizes(*args):
+def FingerSize(*args):
   """
   Function decorator to define finger sizes on the robot instruction method.
 
-    @FingerSizes(1, 2)
+    @FingerSize(1)
     def InstructRobot(robot):
       [...]
   """
   def Wrapper(fn):
-    fn.finger_sizes = args
+    fn.finger_size = args
     return fn
   return Wrapper
 
-def CustomFingers(fn):
+def CustomFinger(fn):
   """
   Function decorator to enforce custom finger setup for an robot instruction
   method. The robot will start with no finger tips attached and this method
   has to take care of setting up finger tips as well as cleaning them up again.
 
-    @CustomFingers
+    @CustomFinger
     def InstructRobot(robot):
       [...]
   """
-  fn.finger_sizes = None
+  fn.finger_size = None
   return fn
 
 class AbstractValidator(object):

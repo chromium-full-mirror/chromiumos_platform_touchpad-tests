@@ -29,11 +29,19 @@ class TestRobot(object):
     self.remote = CrOSRemote(self.ip)
     self.current_finger_size = None
     self.current_tip_mask = None
-    self.FindRobotDir()
+    self.dir = self.FindRobotDir()
+
+    name = self.remote.GetDeviceInfo().board_variant
+    self.spec_file = "device_specs/{}".format(name)
+
+    if not calib:
+      if not self.remote.Execute(["test", "-e", self.spec_file + ".p"],
+                                 cwd=self.dir) is not False:
+        calib = True
 
     if calib:
       UserConfirm("Starting calibration for new device")
-      cmd = "python calibrate_for_new_device.py regression"
+      cmd = "python calibrate_for_new_device.py " + self.spec_file
       if manual_fingertips:
         cmd = cmd + " --manual-fingertips"
       self.Execute(cmd)
@@ -45,10 +53,9 @@ class TestRobot(object):
       "/usr/local/lib64/python2.7/site-packages/touchbotII",
       "/usr/local/lib/python2.7/site-packages/touchbotII"]
     for dir in search_dirs:
-      if self.remote.Execute("test -e %s/calibrate_for_new_device.py" % dir,
-                             verbose=False):
-        self.dir = dir
-        return
+      if self.remote.Execute("test -e %s/calibrate_for_new_device.py"
+                             % dir) is not False:
+        return dir
     print "Cannot find robot directory"
     sys.exit(1)
 
@@ -102,21 +109,17 @@ class TestRobot(object):
     self.CheckFingersOn()
     self.ExecuteScript("tap.py", pos, tips, (count, "tap", delay))
 
-  def Click(self, pos, tips):
+  def Click(self, pos, tips, size=1):
     self.CheckFingersOff()
-    self.SetupFingerSize(2, tips)
+    self.SetupFingerSize(size, tips)
     self.ExecuteScript("click.py", pos, tips)
     self.CleanUp()
 
   def Execute(self, cmd):
-    print "Robot Command:", cmd
-    res = self.remote.Execute(cmd, self.dir, verbose=True)
-    if not res:
-      print "Command Failed:", cmd
-      sys.exit(1)
+    return self.remote.SafeExecute(cmd, cwd=self.dir, interactive=True)
 
   def ExecuteScript(self, file, *param_tuples):
-    base = ("python", file, "regression.p")
+    base = ("python", file, self.spec_file + ".p")
     args = map(lambda s: str(s), chain(base, *param_tuples))
     cmd = " ".join(args)
     self.Execute(cmd)
@@ -158,20 +161,12 @@ class RobotTestGenerator(object):
     for case in cases:
       if case.is_virtual:
         continue
-      # per default tests are performed with the finger size 2 only
-      if hasattr(case.instruct_robot, "finger_sizes"):
-        sizes = case.instruct_robot.finger_sizes
+      # per default tests are performed with the finger size 1
+      if hasattr(case.instruct_robot, "finger_size"):
+        size = case.instruct_robot.finger_size
       else:
-        sizes = [2]
-      # append a new test case for each finger size
-      if sizes is None:
-        # this test takes care of finger size setup
-        expanded.append((TestCase(self.tests_dir, case.name), None))
-        continue
-      for size in sizes:
-        name = case.name + "_s" + str(size)
-        expanded.append((TestCase(self.tests_dir, name), size))
-
+        size = 1
+      expanded.append((TestCase(self.tests_dir, case.name), size))
     expanded.sort(key=lambda entry: entry[1])
 
     print "Instructing robot to generate the following tests:"

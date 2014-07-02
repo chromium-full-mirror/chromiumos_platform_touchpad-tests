@@ -17,9 +17,8 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
-@FingerSizes(2)
 def InstructRobot(robot):
-  robot.Line((0.5, 0.1, 0, 20), (0.5, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
-  robot.Line((0.5, 0.5, 0, 20), (0.5, 0.1, 0, 20), (1, 0, 0, 0), 70, "basic")
-  robot.Line((0.1, 0.5, 0, 20), (0.9, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
-  robot.Line((0.9, 0.5, 0, 20), (0.1, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.5, 0.1, -45, 20), (0.5, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.5, 0.5, -45, 20), (0.5, 0.1, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.1, 0.5, -45, 20), (0.9, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")
+  robot.Line((0.9, 0.5, -45, 20), (0.1, 0.5, 0, 20), (1, 0, 0, 0), 70, "basic")

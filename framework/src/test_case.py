@@ -281,7 +281,8 @@ class TestCase(object):
     all_cases = filter(lambda c: c.module, all_cases)
 
     if glob is not None and glob != "all":
-      all_cases = filter(lambda c: fnmatch.fnmatch(c.name, glob), all_cases)
+      all_cases = filter(lambda c: fnmatch.fnmatch(c.name, glob) or
+                                   c.name.startswith(glob), all_cases)
 
     return all_cases
 
