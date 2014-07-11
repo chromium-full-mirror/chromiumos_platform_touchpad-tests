@@ -135,6 +135,13 @@ class TestCase(object):
     return module.Validate.__doc__ if module.Validate.__doc__ else ""
 
   @property
+  def user_description(self):
+    module = self.module
+    if hasattr(module, "UserInstructions"):
+      return module.UserInstructions()
+    return None
+
+  @property
   def disabled(self):
     module = self.module
     return hasattr(module.Validate, "disabled") and module.Validate.disabled
