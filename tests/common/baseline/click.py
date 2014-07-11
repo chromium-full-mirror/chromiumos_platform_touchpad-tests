@@ -18,6 +18,9 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
+def UserInstructions():
+  return "Do a 1 finger click, then a 2-finger click"
+
 @CustomFinger
 def InstructRobot(robot):
   robot.Click((0.5, 0.9, -45, 25), (1, 0, 0, 0))

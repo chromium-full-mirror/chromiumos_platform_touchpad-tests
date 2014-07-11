@@ -17,6 +17,9 @@ def Validate(raw, events, gestures):
   ]
   return fuzzy.Check(gestures)
 
+def UserInstructions():
+  return "Do a 1 finger tap, then a 2-finger tap"
+
 def InstructRobot(robot):
   robot.Tap((0.5, 0.2, -45, 20), (1, 0, 0, 0), 1, 0.1)
   robot.Tap((0.5, 0.2, -45, 20), (1, 0, 1, 0), 1, 0.0)
