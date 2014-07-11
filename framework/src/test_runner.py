@@ -28,7 +28,7 @@ class TestRunner(object):
   def __init__(self, tests_dir):
     self.tests_dir = tests_dir
 
-  def RunTest(self, test_case):
+  def RunTest(self, test_case, generate_original_values=False):
     """
     This method executes a single test. The results are provided in the
     following structure:
@@ -114,8 +114,18 @@ class TestRunner(object):
 
       # validate the replay results
       dbg_log.info("Validating...")
-      score, validation_log = test_case.module.Validate(log.raw,
-          log.events, log.gestures)
+      if generate_original_values:
+        score, validation_log, original_values = \
+            test_case.module.GenerateOriginalValues(
+          log.raw, log.events, log.gestures)
+        out['original_values'] = original_values
+      elif test_case.original_values:
+        score, validation_log = test_case.module.Validate(
+          log.raw, log.events, log.gestures,
+          original_values=test_case.original_values)
+      else:
+        score, validation_log = test_case.module.Validate(
+          log.raw, log.events, log.gestures)
 
       out["logs"]["validation"] = validation_log
       out["result"] = "success" if score is not False else "failure"

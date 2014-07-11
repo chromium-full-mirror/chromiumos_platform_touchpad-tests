@@ -70,7 +70,7 @@ class TestFactory(object):
 
     return True
 
-  def CreateTest(self, name, log, gdb=False):
+  def CreateTest(self, name, log, gdb=False, original_values=None):
     """
     Create a new test. This method will create all necessary files to replay
     the events from the activity/cmt log file and also provides a template for
@@ -105,7 +105,11 @@ class TestFactory(object):
         else:
           print "Warning: No User-Property", name, "set"
 
-    json.dump({"gestures": user_properties}, open(case.case_property_file, "w"))
+    props = {"gestures": user_properties}
+    if original_values is not None:
+      props['original_values'] = original_values
+    json.dump(props, open(case.case_property_file, "w"))
+    case.ReloadProperties()
 
     # copy event log file
     open(case.log_file, "w").write(log.evdev)

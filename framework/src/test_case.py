@@ -61,6 +61,7 @@ class TestCase(object):
     self.path = self.testname.split(os.sep)
     self.properties = None
     self.platform = None
+    self.original_values = None
     self._module = None
 
   def IsComplete(self):
@@ -144,6 +145,10 @@ class TestCase(object):
     return hasattr(module.Validate, "disabled") and module.Validate.disabled
 
   @property
+  def takes_original_values(self):
+    return hasattr(self.module, "GenerateOriginalValues")
+
+  @property
   def is_virtual(self):
     if self.module_file:
       module_name = path.basename(path.splitext(self.module_file)[0])
@@ -206,6 +211,10 @@ class TestCase(object):
       return self.module.InstructRobot
     return None
 
+  def ReloadProperties(self):
+    self.properties = None
+    self._LoadProperties()
+
   def _LoadProperties(self):
     self.properties = { "gestures": {}, "validator": {}}
     self._LoadPropertiesFile(self._PlatformFile("platform.props"))
@@ -232,6 +241,8 @@ class TestCase(object):
       self.properties["device_class"] = data["device_class"]
     if "platform" in data:
       self.platform = data["platform"]
+    if "original_values" in data:
+      self.original_values = data["original_values"]
 
   def _TestCaseFile(self, extension):
     return os.path.join(self.tests_path, *self.path) + extension
