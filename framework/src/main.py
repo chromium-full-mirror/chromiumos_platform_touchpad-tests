@@ -21,6 +21,7 @@ from table import Table
 from test_case import TestCase
 from test_factory import TestFactory
 from test_robot import RobotTestGenerator
+from test_collector import TestCollector
 from test_runner import ParallelTestRunner as TestRunner
 
 
@@ -285,9 +286,13 @@ def Main():
   parser.add_option("--robot",
                     dest="robot", default=None,
                     help="Instruct robot to generate test cases")
-  parser.add_option("--overwrite",
-                    dest="overwrite", action="store_true", default=False,
-                    help="(use with --robot) Overwrite existing tests")
+  parser.add_option("--collect_from",
+                    dest="collect_ip", default=None,
+                    help="Interactively collect tests at given device IP");
+  parser.add_option(
+    "--overwrite",
+    dest="overwrite", action="store_true", default=False,
+    help="(use with --robot or --collect_from) Overwrite existing tests")
   parser.add_option("--no-calib",
                     dest="nocalib", action="store_true", default=False,
                     help="(use with --robot) Skip calibration step.")
@@ -348,6 +353,9 @@ def Main():
     Get(test_name, view)
   elif options.gdb:
     GDB(test_name)
+  elif options.collect_ip:
+    generator = TestCollector(options.collect_ip, os.environ["TESTS_DIR"])
+    generator.GenerateAll(test_name, options.overwrite)
   elif options.robot:
     generator = RobotTestGenerator(options.robot, not options.nocalib,
         options.slow, options.manual_fingertips, os.environ["TESTS_DIR"])
