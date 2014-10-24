@@ -27,11 +27,11 @@ class LogCollector(object):
     self.remote.Execute(
         "/opt/google/touchpad/tpcontrol set \"Logging Reset\" 1")
 
-  def GetLog(self):
+  def GetLog(self, platform):
     replay = MTReplay()
 
     log = DeviceLog(self.ip, new=True)
-    return replay.TrimEvdev(log)
+    return replay.TrimEvdev(log, force_platform=platform)
 
 class TestCollector(object):
   def __init__(self, ip, tests_dir):
@@ -46,7 +46,7 @@ class TestCollector(object):
       print description
     print "Hit enter when done."
     AskUser.Continue()
-    log = self.collector.GetLog()
+    log = self.collector.GetLog(test_case.platform_name);
     if not log:
       print "Nothing happened... Did you do the gesture?"
       return False
