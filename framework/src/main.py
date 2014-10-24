@@ -333,7 +333,8 @@ def Main():
       log = original_log
     else:
       editor = MTEdit()
-      log = editor.Edit(original_log)
+      platform = test_name.split(os.sep)[0]
+      log = editor.Edit(original_log, force_platform=platform)
 
     # pass to touchtests
     Add(test_name, log, options.gdb)
