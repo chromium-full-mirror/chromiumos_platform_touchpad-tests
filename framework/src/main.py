@@ -253,6 +253,9 @@ def Main():
   parser.add_option("-c", "--create",
                     dest="create", default=None,
                     help="create new test case from URL/IP or log file")
+  parser.add_option("-p", "--platform",
+                    dest="platform", default=None,
+                    help="specify platform when using --create")
   parser.add_option("-e", "--evdev",
                     dest="evdev", default=None,
                     help="path to evdev log for creating a new test")
@@ -333,7 +336,7 @@ def Main():
       log = original_log
     else:
       editor = MTEdit()
-      platform = test_name.split(os.sep)[0]
+      platform = options.platform or test_name.split(os.sep)[0]
       log = editor.Edit(original_log, force_platform=platform)
 
     # pass to touchtests
