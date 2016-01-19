@@ -138,6 +138,9 @@ class FlingStopValidator(AbstractCountValidator):
 class SwipeLiftValidator(AbstractCountValidator):
   event_type = "SwipeLift"
 
+class FourFingerSwipeLiftValidator(AbstractCountValidator):
+  event_type = "FourFingerSwipeLift"
+
 
 class AbstractButtonValidator(AbstractCountValidator):
   """
@@ -303,6 +306,10 @@ class PinchValidator(AbstractAxisValidator):
 
 class SwipeValidator(AbstractAxisValidator):
   event_type = "Swipe"
+
+
+class FourFingerSwipeValidator(AbstractAxisValidator):
+  event_type = "FourFingerSwipe"
 
 
 class MotionValidator(AbstractAxisValidator):
