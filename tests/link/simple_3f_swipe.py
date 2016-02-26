@@ -19,11 +19,11 @@ def Validate(raw, events, gestures):
   fuzzy.expected = [
     SwipeValidator(x="==1695 ~ 400"),
     SwipeLiftValidator(),
-    SwipeValidator(x="==1242 ~ 400"),
+    SwipeValidator(x="==1223 ~ 400"),
     SwipeLiftValidator(),
-    SwipeValidator(y="==1664 ~ 400"),
+    SwipeValidator(y="==1657 ~ 400"),
     SwipeLiftValidator(),
-    SwipeValidator(y="==1562 ~ 400"),
+    SwipeValidator(y="==1554 ~ 400"),
     SwipeLiftValidator(),
   ]
   fuzzy.unexpected = [
