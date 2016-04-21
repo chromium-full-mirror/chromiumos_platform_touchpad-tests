@@ -15,7 +15,7 @@ def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
     MotionValidator("== 0 ~ 20"),
-    PinchValidator(">= 160"),
+    PinchValidator("== 2.348 ~ 0.2"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),
