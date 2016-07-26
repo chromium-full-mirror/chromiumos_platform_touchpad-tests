@@ -17,3 +17,5 @@ def Validate(raw, events, gestures):
     FlingStopValidator("<10"),
   ]
   return fuzzy.Check(gestures)
+
+Validate.disable = True
