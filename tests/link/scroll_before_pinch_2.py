@@ -11,7 +11,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    PinchValidator("== 1.568 ~ 0.2"),
+    PinchValidator("== 2.577 ~ 0.5"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<10"),
