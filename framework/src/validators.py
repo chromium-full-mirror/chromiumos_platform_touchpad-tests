@@ -319,19 +319,22 @@ class MotionValidator(AbstractAxisValidator):
 class AnythingButValidator(object):
   """
   Allows to 'wait' for a certain gesture to be performed. It will accept all
-  events exept for the events accepted by the validator passed as the 'but'
-  argument.
+  events exept for the events accepted by the validators passed as arguments.
   The score of this validator is always 1.
   """
-  def __init__(self, but):
+  def __init__(self, *but):
     self._but = but
     self.score = 1
 
   def Accept(self, event):
-    return not self._but.Accept(event)
+    for validator in self._but:
+      if validator.Accept(event):
+        return False
+    return True
 
   def Validate(self, event):
     pass
 
   def __str__(self):
-    return "not(" + str(self._but.TypeString()) + ")"
+    types = map(lambda x: str(x.TypeString()), self._but)
+    return "not(" + " or ".join(types) + ")"

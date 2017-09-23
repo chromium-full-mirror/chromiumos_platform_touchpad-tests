@@ -8,19 +8,19 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    MotionValidator("== 525 ~ 50"),
+    MotionValidator("> 400"),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
-    MotionValidator("== 694 ~ 50"),
-    MotionValidator("== 1009 ~ 50"),
-    MotionValidator("== 121 ~ 50"),
+    MotionValidator("> 550"),
+    MotionValidator("> 850"),
+    MotionValidator("> 50"),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
-    MotionValidator("== 461 ~ 50"),
+    MotionValidator("> 450"),
   ]
   fuzzy.unexpected = [
     FlingStopValidator("<60"),
