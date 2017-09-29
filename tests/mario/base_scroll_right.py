@@ -8,7 +8,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    ScrollValidator("== 4432 ~ 1000"),
+    ScrollValidator("== 3693.3 ~ 833.3"),
   ]
   fuzzy.unexpected = [
     MotionValidator("== 0 ~ 20"),

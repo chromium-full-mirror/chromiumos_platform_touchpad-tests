@@ -10,7 +10,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    FlingValidator("== 79528 ~ 10000"),
+    FlingValidator("== 66273.3 ~ 8333.3"),
   ]
   fuzzy.unexpected = [
     ScrollValidator(""),  # scroll optional
