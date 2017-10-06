@@ -11,6 +11,7 @@ def Validate(raw, events, gestures):
     MotionValidator("> 400"),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
+    AnythingButValidator(ButtonDownValidator(1)),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
     ButtonDownValidator(1),
