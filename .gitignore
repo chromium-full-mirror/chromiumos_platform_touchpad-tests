@@ -1,4 +1,5 @@
 replay/replay
+local-install
 .project
 .pydevproject
 *.pyc
