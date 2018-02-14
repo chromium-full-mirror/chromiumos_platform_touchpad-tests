@@ -10,7 +10,7 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    MotionValidator(">0"),
+    MotionValidator(">=0"),
     ButtonDownValidator(1),
     ButtonUpValidator(1),
   ]
