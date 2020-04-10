@@ -86,7 +86,7 @@ class TestCollector(object):
 
     for case in cases:
       max_attempts = 3
-      for attempt in xrange(max_attempts):
+      for attempt in range(max_attempts):
         print("Attempt", (attempt + 1), "of", max_attempts)
         if self.GenerateTestCase(case):
           print("Success!")

@@ -8,13 +8,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from cStringIO import StringIO
-import fnmatch
-import json
 import logging
 import multiprocessing
-import os
-import sys
 import traceback
 
 from mtreplay import MTReplay

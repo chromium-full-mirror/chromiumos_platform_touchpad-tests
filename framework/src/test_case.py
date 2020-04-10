@@ -286,8 +286,7 @@ class TestCase(object):
       files = ListDirRecursive(path.join(tests_dir, platform), "")
       py_files = fnmatch.filter(files, "*.py")
       log_files = fnmatch.filter(files, "*.log")
-      test_names = map(lambda p: path.splitext(p)[0], py_files)
-      test_names.extend(map(lambda p: path.splitext(p)[0], log_files))
+      test_names = map(lambda p: path.splitext(p)[0], py_files + log_files)
       return set(test_names)
 
     common_validators = ListCases(tests_dir, "common")
