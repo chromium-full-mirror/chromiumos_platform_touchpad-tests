@@ -4,6 +4,10 @@
 #
 # This module is the main module for the console interface. It takes care
 # of parsing the command line arguments and formating the output
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from optparse import OptionParser
 from subprocess import Popen, PIPE, STDOUT
 from tempfile import NamedTemporaryFile
@@ -85,17 +89,17 @@ $ evemu-describe /path/to/device > platform.dat
 
 def Compile():
   if "SRC_DIR" not in os.environ:
-    print "Requires SRC_DIR env-var. Re-run $ sudo make setup-in-place"
+    print("Requires SRC_DIR env-var. Re-run $ sudo make setup-in-place")
     sys.exit(-1)
 
   dir = os.environ["SRC_DIR"]
-  print "Recompiling gestures/libevdev/replay..."
-  print "SRC_DIR is %s" % dir
+  print("Recompiling gestures/libevdev/replay...")
+  print("SRC_DIR is %s" % dir)
   process = Popen(["make", "-j", str(multiprocessing.cpu_count()),
                   "in-place"], cwd=dir, stdout=PIPE, stderr=STDOUT)
   ret = process.wait()
   if ret != 0:
-    print process.stdout.read()
+    print(process.stdout.read())
     sys.exit(-1)
 
 
@@ -105,15 +109,15 @@ def Verify(device, glob):
   cases = runner.DiscoverTestCases(glob)
 
   for case in cases:
-    print "###", case.name
+    print("###", case.name)
     report = verifier.Verify(case)
-    print report
+    print(report)
 
 
 def Run(glob, out_file=None, ref_file=None, autotest=False):
   if not autotest:
     Compile()
-  print "Running tests..."
+  print("Running tests...")
   runner = TestRunner(os.environ["TESTS_DIR"])
   results = runner.RunAll(glob)
 
@@ -134,13 +138,13 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
       elif value["result"] == "success":
         continue
 
-    print "### Validation report for", key
-    print value["description"]
+    print("### Validation report for", key)
+    print(value["description"])
     if value["disabled"]:
-      print "DISABLED"
+      print("DISABLED")
     else:
-      print value["logs"]["validation"]
-      print value["error"]
+      print(value["logs"]["validation"])
+      print(value["error"])
 
   # format result table
   table = Table()
@@ -175,14 +179,14 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
         delta_str = "\x1b[32m%+.4f\x1b[0m" % delta
     table.row(key, ref_score, ResultStr(value), delta_str)
 
-  print table
+  print(table)
 
   if out_file:
     json.dump(results, open(out_file, "w"), indent=2)
-    print "results stored in:", out_file
+    print("results stored in:", out_file)
 
   if regression:
-    print "\x1b[91mThere are regressions present in this test run!\x1b[0m"
+    print("\x1b[91mThere are regressions present in this test run!\x1b[0m")
     exit(-1)
 
 
@@ -197,15 +201,15 @@ def Get(test_name, what, file=None):
     results = data[test_name]
 
   if what == "gestures-log":
-    print results["logs"]["gestures"]
+    print(results["logs"]["gestures"])
   elif what == "evdev-log":
-    print results["logs"]["evdev"]
+    print(results["logs"]["evdev"])
   elif what == "activity-log":
-    print results["logs"]["activity"]
+    print(results["logs"]["activity"])
   elif what == "gestures":
-    print results["gestures"]
+    print(results["gestures"])
   elif what == "events":
-    print results["events"]
+    print(results["events"])
   elif what == "activity":
     log = Log(activity=results["logs"]["activity"])
     editor = MTEdit()
@@ -224,7 +228,7 @@ def Add(testname, log, gdb):
   factory = TestFactory(os.environ["TESTS_DIR"])
   case = factory.CreateTest(testname, log, gdb)
   if case:
-    print "Test \"" + case.name + "\" created"
+    print("Test \"" + case.name + "\" created")
 
 def AddPlatform(ip):
   name = PlatformDatabase.RegisterPlatformFromDevice(ip)
@@ -235,7 +239,7 @@ def AddPlatform(ip):
   if not os.path.exists(dirname):
     os.mkdir(dirname)
   open(propsfile, "w").write("{\"platform\": \"%s\"}" % name)
-  print " ", propsfile
+  print(" ", propsfile)
 
 def Main():
   """
@@ -244,7 +248,7 @@ def Main():
 
   # setup paths from environment variables
   if "TESTS_DIR" not in os.environ:
-    print "Require TESTS_DIR environment variable"
+    print("Require TESTS_DIR environment variable")
     exit(-1)
 
   TestCase.tests_path = os.environ["TESTS_DIR"]

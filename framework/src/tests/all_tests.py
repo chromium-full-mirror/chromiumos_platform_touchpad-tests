@@ -3,6 +3,10 @@
 # found in the LICENSE file.
 #
 # This module imports all test cases in this project and executes them.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from fuzzy_check_tests import FuzzyCheckDragTests
 from fuzzy_check_tests import FuzzyCheckTests
 from fuzzy_check_tests import FuzzyComparatorTests

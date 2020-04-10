@@ -3,6 +3,10 @@
 # found in the LICENSE file.
 #
 # This module contains unit tests for TestFactory
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from os import path
 from test_factory import TestFactory
 from test_runner import TestRunner

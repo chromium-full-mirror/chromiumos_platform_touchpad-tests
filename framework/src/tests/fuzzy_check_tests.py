@@ -4,6 +4,10 @@
 #
 # This module provides unit tests for FuzzyCheck from fuzzy_check.py including
 # it's internal classes
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from fuzzy_check import *
 from validators import *
 from gesture_log import *

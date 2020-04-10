@@ -5,6 +5,10 @@
 # This module contains the TestCase class which gives access to the data files
 # belonging to a test case and validation that the TestCase has all required
 # information.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from mtlib.gesture_log import GestureLog
 from os import path
 import fnmatch

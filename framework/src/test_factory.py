@@ -5,6 +5,10 @@
 # This module provides the TestFactory class to create new tests based upon
 # an activity and cmt log.
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from mtlib.gesture_log import GestureLog
 from mtlib import Log
 from mtreplay import MTReplay
@@ -103,7 +107,7 @@ class TestFactory(object):
         if name in properties:
           user_properties[name] = properties[name]
         else:
-          print "Warning: No User-Property", name, "set"
+          print("Warning: No User-Property", name, "set")
 
     props = {"gestures": user_properties}
     if original_values is not None:
@@ -134,11 +138,11 @@ class TestFactory(object):
   def _CheckCreatedTest(self, case, activity_log, replay_log):
     original_log = GestureLog(activity_log)
 
-    print "Checking test for warnings:"
+    print("Checking test for warnings:")
 
     def PrintMismatch(type, key, original, replay):
       format = "  %s '%s' mismatch: Expected %s but is %s"
-      print format % (type, key, str(original), str(replay))
+      print(format % (type, key, str(original), str(replay)))
 
     # check if device properties are the same
     property_errors = False
@@ -176,7 +180,7 @@ class TestFactory(object):
     hwproperties_errors = False
     for key, original_value in original_log.hwproperties.items():
       if not key in replay_log.hwproperties:
-        print "  HwProperty '%s' is missing" % key
+        print("  HwProperty '%s' is missing" % key)
         hwproperties_errors = True
 
       replay_value = replay_log.hwproperties[key]
@@ -235,31 +239,31 @@ class TestFactory(object):
         if original_gesture.type != replay_gesture.type:
           gestures_errors = True
 
-    print "Warnings: "
+    print("Warnings: ")
 
     if hwproperties_errors:
-      print "- Hardware properties do not match."
-      print "  Are you creating the test for the right platform?"
+      print("- Hardware properties do not match.")
+      print("  Are you creating the test for the right platform?")
 
     if property_errors:
-      print "- Device properties do not match."
-      print "  This can happen if platform.props is out of date or you are" + \
-            " adding an older log."
+      print("- Device properties do not match.")
+      print("  This can happen if platform.props is out of date or you are" + \
+            " adding an older log.")
 
     if hwstates_errors:
-      print "- The hardware state + timer callback sequence is not the same!"
-      print "  This is a technical limitation and might cause different" + \
-            " behavior."
+      print("- The hardware state + timer callback sequence is not the same!")
+      print("  This is a technical limitation and might cause different" + \
+            " behavior.")
 
     if gestures_errors:
-      print "- Generated gestures do not match."
-      print "  Original gestures:"
-      print "    " + "\n    ".join([str(g) for g in original_log.gestures])
-      print "  Replay gestures:"
-      print "    " + "\n    ".join([str(g) for g in replay_log.gestures])
-      print "  This might be caused by one of the warnings above or simply"
-      print "  because the drivers behavior changed since the log was created."
+      print("- Generated gestures do not match.")
+      print("  Original gestures:")
+      print("    " + "\n    ".join([str(g) for g in original_log.gestures]))
+      print("  Replay gestures:")
+      print("    " + "\n    ".join([str(g) for g in replay_log.gestures]))
+      print("  This might be caused by one of the warnings above or simply")
+      print("  because the drivers behavior changed since the log was created.")
 
     if not(gestures_errors or hwproperties_errors or property_errors
            or hwstates_errors):
-      print "  none :)"
+      print("  none :)")

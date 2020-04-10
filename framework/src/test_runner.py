@@ -4,6 +4,10 @@
 #
 # This module provides the test runner which is responsible for discovering
 # and executing tests.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from cStringIO import StringIO
 import fnmatch
 import json

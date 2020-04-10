@@ -1,6 +1,10 @@
 # Copyright (c) 2014 The Chromium OS Authors. All rights reserved.
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from collections import namedtuple
 from itertools import chain
 import sys
@@ -14,8 +18,8 @@ from test_factory import TestFactory
 
 def UserConfirm(msg=None):
   if msg:
-    print msg
-  print "Are you sure you wish to continue? [y/N]"
+    print(msg)
+  print("Are you sure you wish to continue? [y/N]")
   response = sys.stdin.readline()
   if response.strip() not in ('y', 'Y', 'yes', 'Yes'):
     sys.exit(1)
@@ -56,17 +60,17 @@ class TestRobot(object):
       if self.remote.Execute("test -e %s/calibrate_for_new_device.py"
                              % dir) is not False:
         return dir
-    print "Cannot find robot directory"
+    print("Cannot find robot directory")
     sys.exit(1)
 
   def CheckFingersOn(self):
     if not self.current_finger_size and not self.manual_fingertips:
-      print "Select finger size before gesture"
+      print("Select finger size before gesture")
       sys.exit(1)
 
   def CheckFingersOff(self):
     if self.current_finger_size and not self.manual_fingertips:
-      print "Select finger size before gesture"
+      print("Select finger size before gesture")
       sys.exit(1)
 
   def CleanUp(self):
@@ -74,7 +78,7 @@ class TestRobot(object):
       return
 
     if self.current_finger_size is not None:
-      print "### Removing finger tips (size %d)" % self.current_finger_size
+      print("### Removing finger tips (size %d)" % self.current_finger_size)
       self.Execute("python manipulate_fingertips.py %s %d False --fast-check"
                    % (self.current_tip_mask, self.current_finger_size))
     self.current_finger_size = None
@@ -88,12 +92,12 @@ class TestRobot(object):
     if self.current_finger_size != size or self.current_tip_mask != mask:
       if (self.current_finger_size is not None
           and self.current_tip_mask is not None):
-        print "### Removing finger tips (size %d)" % self.current_finger_size
+        print("### Removing finger tips (size %d)" % self.current_finger_size)
         self.Execute("python manipulate_fingertips.py %s %d False --fast-check"
                      % (self.current_tip_mask, self.current_finger_size))
         fast_check = "--fast-check"
 
-      print "### Picking finger tips (size %d)" % size
+      print("### Picking finger tips (size %d)" % size)
       self.Execute("python manipulate_fingertips.py %s %d True %s"
                    % (mask, size, fast_check))
       self.current_finger_size = size
@@ -140,13 +144,13 @@ class RobotTestGenerator(object):
     self.robot = TestRobot(ip, calib, slow, manual_fingertips)
 
   def GenerateCase(self, test_case):
-    print "Instructing robot to generate test", test_case.name
+    print("Instructing robot to generate test", test_case.name)
 
     self.robot.ClearLog()
     test_case.instruct_robot(self.robot)
     log = self.robot.GetLog()
     if not log:
-      print "Nothing happened... is the robot set up?"
+      print("Nothing happened... is the robot set up?")
       return
 
     factory = TestFactory(self.tests_dir)
@@ -169,12 +173,12 @@ class RobotTestGenerator(object):
       expanded.append((TestCase(self.tests_dir, case.name), size))
     expanded.sort(key=lambda entry: entry[1])
 
-    print "Instructing robot to generate the following tests:"
+    print("Instructing robot to generate the following tests:")
     for case, fingersize in expanded:
       if fingersize is None:
-        print "  - %s (custom)" % (case.name)
+        print("  - %s (custom)" % (case.name))
       else:
-        print "  - %s (%d)" % (case.name, fingersize)
+        print("  - %s (%d)" % (case.name, fingersize))
     UserConfirm()
 
     # run tests with configured finger sizes

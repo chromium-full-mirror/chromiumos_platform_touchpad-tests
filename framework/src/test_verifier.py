@@ -8,6 +8,10 @@
 #
 # This module is DEPRECATED!
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from replay import Replay
 from test_case import TestCase
 from test_factory import TestFactory

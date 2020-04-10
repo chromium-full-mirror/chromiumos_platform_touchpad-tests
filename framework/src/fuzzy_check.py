@@ -6,6 +6,10 @@
 # defined in the validators modules. The validators make
 # use of the FuzzyComparator class that allows validations to be made in
 # a fuzzy way that leads to a score instead of a true/false decision.
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import math
 import re
 
