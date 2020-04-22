@@ -114,7 +114,8 @@ def Verify(device, glob):
     print(report)
 
 
-def Run(glob, out_file=None, ref_file=None, autotest=False):
+def Run(glob, out_file=None, ref_file=None, autotest=False,
+        compact_results=False):
   if not autotest:
     Compile()
   print("Running tests...")
@@ -182,6 +183,11 @@ def Run(glob, out_file=None, ref_file=None, autotest=False):
   print(table)
 
   if out_file:
+    if compact_results:
+      for test_name in results:
+        r = results[test_name]
+        del r["logs"], r["events"], r["gestures"]
+
     json.dump(results, open(out_file, "w"), indent=2)
     print("results stored in:", out_file)
 
@@ -273,6 +279,10 @@ def Main():
   parser.add_option("-o", "--out",
                     dest="out", default=None,
                     help="output test results to file.")
+  parser.add_option("--compact-results",
+                    dest="compact_results", action="store_true", default=False,
+                    help="exclude logs from the test result file when using "
+                         "--out, making it much smaller")
   parser.add_option("-n", "--new",
                     dest="new", action="store_true", default=False,
                     help="Create new device logs before downloading. " +
@@ -369,7 +379,8 @@ def Main():
         options.slow, options.manual_fingertips, os.environ["TESTS_DIR"])
     generator.GenerateAll(test_name, options.overwrite)
   else:
-    Run(test_name, options.out, options.ref, options.autotest)
+    Run(test_name, options.out, options.ref, options.autotest,
+        options.compact_results)
 
 
 if __name__ == "__main__":
