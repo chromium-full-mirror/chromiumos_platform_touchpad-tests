@@ -44,3 +44,18 @@ Each test will return a status, with the following meanings:
   gestures library couldn't be evaluated.
 * **incomplete**: (baseline tests only) the evdev log for this platform hasn't
   been created.
+
+### Checking for regressions
+
+The `--out` (or `-o`) switch creates a report file that future runs can be
+compared against with the `--ref` (or `-r`) switch:
+
+```sh
+(inside)
+$ touchtests --out baseline.json
+# (cause some regressions)
+$ touchtests --ref baseline.json
+```
+
+The output table will contain a delta column that indicates any regressions or
+improvements, and an error message will be shown if regressions exist.
