@@ -103,17 +103,6 @@ def Compile():
     sys.exit(-1)
 
 
-def Verify(device, glob):
-  verifier = TestVerifier(os.environ["TESTS_DIR"], device)
-  runner = TestRunner(os.environ["TESTS_DIR"])
-  cases = runner.DiscoverTestCases(glob)
-
-  for case in cases:
-    print("###", case.name)
-    report = verifier.Verify(case)
-    print(report)
-
-
 def Run(glob, out_file=None, ref_file=None, autotest=False,
         compact_results=False):
   if not autotest:
