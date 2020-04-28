@@ -103,8 +103,7 @@ def Compile():
     sys.exit(1)
 
 
-def Run(glob, out_file=None, ref_file=None, autotest=False,
-        compact_results=False):
+def RunAndCompare(glob, ref_file=None, autotest=False):
   if not autotest:
     Compile()
   print("Running tests...")
@@ -113,22 +112,61 @@ def Run(glob, out_file=None, ref_file=None, autotest=False,
 
   # load reference
   ref = {}
+  deltas = {}
   if ref_file:
     ref = json.load(open(ref_file))
+    for name, res in results.items():
+      if name in ref:
+        deltas[name] = res["score"] - ref[name]["score"]
+
+  return (results, ref, deltas)
+
+def MakeResultsTable(title, names_to_include, results, ref, deltas):
+  """Returns a table of test results."""
+  def ResultStr(value):
+    if value["result"] == "success":
+      msg = "success" if value["score"] >= 0.5 else "bad"
+      return "%s (%.4f)" % (msg, value["score"])
+    else:
+      return value["result"]
+
+  def ColoredDelta(delta):
+    if math.fabs(delta) < 1e-10:
+      return "\x1b[0m%.4f\x1b[0m" % delta    # default color
+    elif delta < 0:
+      return "\x1b[31m%+.4f\x1b[0m" % delta  # red
+    else:
+      return "\x1b[32m%+.4f\x1b[0m" % delta  # green
+
+  table = Table()
+  table.title = title
+  table.header("Test", "reference score", "new score", "delta")
+  for name in sorted(names_to_include):
+    ref_score = ResultStr(ref[name]) if name in ref else "(new)"
+    delta_str = ColoredDelta(deltas[name]) if name in deltas else ""
+    table.row(name, ref_score, ResultStr(results[name]), delta_str)
+
+  return table
+
+def ManualRun(glob, out_file=None, ref_file=None, autotest=False,
+              compact_results=False):
+  """
+  Runs the specified tests, printing a table of results as well as logs for
+  failures (if ref_file isn't specified) or regressions (if it is).
+  """
+  results, ref, deltas = RunAndCompare(glob, ref_file, autotest)
 
   # print reports
   sorted_results_items = sorted(results.items())
-  for key, value in sorted_results_items:
-    if len(results) > 1:
-      # only print reports for regressions or failed tests
-      if key in ref:
-        delta = value["score"] - ref[key]["score"]
-        if math.fabs(delta) < 1e-10:
-          continue
-      elif value["result"] == "success":
-        continue
+  for case_name, value in sorted_results_items:
+    if case_name in ref:
+      should_show_report = math.fabs(deltas[case_name]) >= 1e-10
+    else:
+      should_show_report = value["result"] != "success"
+    if not should_show_report and len(results) > 1:
+      continue
 
-    print("### Validation report for", key)
+    print("### Validation report for", case_name)
     print(value["description"])
     if value["disabled"]:
       print("DISABLED")
@@ -136,40 +174,7 @@ def Run(glob, out_file=None, ref_file=None, autotest=False,
       print(value["logs"]["validation"])
       print(value["error"])
 
-  # format result table
-  table = Table()
-  table.title = "Test Results"
-  table.header("Test", "reference score", "new score", "delta")
-
-  regression = False
-  for key, value in sorted_results_items:
-    def ResultStr(value):
-      # format result to string
-      if value["result"] == "success":
-        msg = "success" if value["score"] >= 0.5 else "bad"
-        return "%s (%.4f)" % (msg, value["score"])
-      else:
-        return value["result"]
-
-    # format reference and delta column
-    ref_score = ""
-    delta_str = ""
-    if key in ref:
-      ref_score = ResultStr(ref[key])
-      delta = value["score"] - ref[key]["score"]
-      if math.fabs(delta) < 1e-10:
-        # default color
-        delta_str = "\x1b[0m%.4f\x1b[0m" % delta
-      elif delta < 0:
-        regression = True
-        # color red
-        delta_str = "\x1b[31m%+.4f\x1b[0m" % delta
-      else:
-        # color green
-        delta_str = "\x1b[32m%+.4f\x1b[0m" % delta
-    table.row(key, ref_score, ResultStr(value), delta_str)
-
-  print(table)
+  print(MakeResultsTable("Test Results", results.keys(), results, ref, deltas))
 
   if out_file:
     if compact_results:
@@ -180,8 +185,48 @@ def Run(glob, out_file=None, ref_file=None, autotest=False,
     json.dump(results, open(out_file, "w"), indent=2)
     print("results stored in:", out_file)
 
+  regression = any(name in ref and deltas[name] < 0 for name in results.keys())
   if regression:
     print("\x1b[91mThere are regressions present in this test run!\x1b[0m")
+    sys.exit(1)
+
+
+_IMPROVEMENT_MESSAGE = """
+Some tests have been fixed or had their scores improved! Please update
+tools/touchtests-report.json by running the following in the chroot:
+
+    $ touchtests --compact-results \\
+        --out ~/trunk/src/platform/gestures/tools/touchtests-report.json
+
+Then add commit the JSON file changes to your CL.
+"""
+
+def PresubmitRun(ref_file, autotest=False):
+  """
+  Runs a gestures library presubmit, meaning it runs all tests, and exits with
+  an error if any have regressed or been fixed (so that the user can update the
+  reference file).
+  """
+  results, ref, deltas = RunAndCompare("all", ref_file, autotest)
+
+  new_tests = results.keys() - ref.keys()
+  failing_new_tests = set(filter(lambda n: results[n]["result"] != "success",
+                                 new_tests))
+  regressions = set(filter(lambda name: deltas[name] <= -1e-10, deltas.keys()))
+  problems = regressions | failing_new_tests
+  if len(problems) > 0:
+    print(MakeResultsTable("Regressions or failures", problems, results, ref,
+                           deltas))
+
+  if len(problems) > 0:
+    print("\x1b[91mPlease fix these failures or regressions, then re-run the "
+          "presubmit.\x1b[0m")
+    sys.exit(1)
+
+  fixed_tests = set(filter(lambda name: deltas[name] >= 1e-10, deltas.keys()))
+  if len(fixed_tests) > 0:
+    print(MakeResultsTable("Improvements", fixed_tests, results, ref, deltas))
+    print(_IMPROVEMENT_MESSAGE)
     sys.exit(1)
 
 
@@ -312,6 +357,9 @@ def Main():
   parser.add_option("--add-platform",
                     dest="add_platform", default=None,
                     help="add platform from IP address of remote device.")
+  parser.add_option("--presubmit",
+                    dest="presubmit", action="store_true", default=False,
+                    help="run tests as part of a Gestures library presubmit")
 
   (options, args) = parser.parse_args()
   options.download = False  # For compatibility with mtedit
@@ -367,9 +415,15 @@ def Main():
     generator = RobotTestGenerator(options.robot, not options.nocalib,
         options.slow, options.manual_fingertips, os.environ["TESTS_DIR"])
     generator.GenerateAll(test_name, options.overwrite)
+  elif options.presubmit:
+    if options.ref is None:
+      print("Error: --ref must be specified with --presubmit.")
+      sys.exit(1)
+
+    PresubmitRun(options.ref, options.autotest)
   else:
-    Run(test_name, options.out, options.ref, options.autotest,
-        options.compact_results)
+    ManualRun(test_name, options.out, options.ref, options.autotest,
+              options.compact_results)
 
 
 if __name__ == "__main__":
