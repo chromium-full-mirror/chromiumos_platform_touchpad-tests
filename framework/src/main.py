@@ -90,7 +90,7 @@ $ evemu-describe /path/to/device > platform.dat
 def Compile():
   if "SRC_DIR" not in os.environ:
     print("Requires SRC_DIR env-var. Re-run $ sudo make setup-in-place")
-    sys.exit(-1)
+    sys.exit(1)
 
   dir = os.environ["SRC_DIR"]
   print("Recompiling gestures/libevdev/replay...")
@@ -100,7 +100,7 @@ def Compile():
   ret = process.wait()
   if ret != 0:
     print(process.stdout.read())
-    sys.exit(-1)
+    sys.exit(1)
 
 
 def Run(glob, out_file=None, ref_file=None, autotest=False,
@@ -182,7 +182,7 @@ def Run(glob, out_file=None, ref_file=None, autotest=False,
 
   if regression:
     print("\x1b[91mThere are regressions present in this test run!\x1b[0m")
-    exit(-1)
+    sys.exit(1)
 
 
 def Get(test_name, what, file=None):
@@ -244,7 +244,7 @@ def Main():
   # setup paths from environment variables
   if "TESTS_DIR" not in os.environ:
     print("Require TESTS_DIR environment variable")
-    exit(-1)
+    sys.exit(1)
 
   TestCase.tests_path = os.environ["TESTS_DIR"]
 
@@ -327,7 +327,7 @@ def Main():
     test_name = args[0]
   else:
     parser.print_help()
-    exit(-1)
+    sys.exit(1)
 
   level = logging.INFO if options.verbose else logging.WARNING
   logging.basicConfig(level=level)
