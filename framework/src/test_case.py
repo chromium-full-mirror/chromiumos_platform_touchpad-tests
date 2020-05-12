@@ -293,7 +293,10 @@ class TestCase(object):
     all_cases = []
     for platform in TestCase.DiscoverPlatforms(tests_dir):
       validators = ListCases(tests_dir, platform)
-      validators.update(common_validators)
+      device_class = TestCase(tests_dir,
+              path.join(platform, "dummy")).device_class
+      if device_class is None or device_class == "touchpad":
+        validators.update(common_validators)
 
       test_cases = map(lambda f: TestCase(tests_dir, path.join(platform, f)),
                        validators)
