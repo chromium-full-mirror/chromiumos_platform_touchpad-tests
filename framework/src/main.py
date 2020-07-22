@@ -99,7 +99,7 @@ def Compile():
                   "in-place"], cwd=dir, stdout=PIPE, stderr=STDOUT)
   ret = process.wait()
   if ret != 0:
-    print(process.stdout.read())
+    print(process.stdout.read().decode(errors='replace'))
     sys.exit(1)
 
 
