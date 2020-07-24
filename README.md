@@ -9,8 +9,8 @@ Each test has a log of evdev events which are replayed, a properties file
 containing [gesture properties] to set while the Gestures library runs, and a
 Python function which verifies the output and returns a test score.
 
-[gestures-lib]: https://chromium.googlesource.com/chromiumos/platform/gestures/+/master/
-[gesture properties]: https://chromium.googlesource.com/chromiumos/platform/gestures/+/master/docs/gesture_properties.md
+[gestures-lib]: https://chromium.googlesource.com/chromiumos/platform/gestures/+/HEAD/
+[gesture properties]: https://chromium.googlesource.com/chromiumos/platform/gestures/+/HEAD/docs/gesture_properties.md
 
 ## Setting up
 
@@ -23,7 +23,7 @@ $ cd ~/trunk/src/platform/touchpad-tests
 $ sudo make setup-in-place
 ```
 
-[developer guide]: https://chromium.googlesource.com/chromiumos/platform/gestures/+/master/docs/gesture_properties.md
+[developer guide]: https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md
 
 ## Running tests
 
