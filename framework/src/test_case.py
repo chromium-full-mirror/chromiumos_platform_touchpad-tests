@@ -227,7 +227,12 @@ class TestCase(object):
     self._LoadProperties()
 
   def _LoadProperties(self):
-    self.properties = { "gestures": {}, "validator": {}}
+    self.properties = {
+      # The "Event Logging Enable" property is required for the gestures library
+      # to produce the event logs used by these tests.
+      "gestures": { "Event Logging Enable" : True },
+      "validator": {},
+    }
     self._LoadPropertiesFile(self._PlatformFile("platform.props"))
     self._LoadPropertiesFile(self._CommonFile(".props"))
     self._LoadPropertiesFile(self._TestCaseFile(".props"))
