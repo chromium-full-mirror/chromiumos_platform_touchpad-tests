@@ -182,7 +182,7 @@ def ManualRun(glob, out_file=None, ref_file=None, autotest=False,
         r = results[test_name]
         del r["logs"], r["events"], r["gestures"]
 
-    json.dump(results, open(out_file, "w"), indent=2)
+    json.dump(results, open(out_file, "w"), indent=2, sort_keys=True)
     print("results stored in:", out_file)
 
   regression = any(name in ref and deltas[name] < 0 for name in results.keys())
