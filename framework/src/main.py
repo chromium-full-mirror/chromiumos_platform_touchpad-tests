@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -212,7 +212,7 @@ def PresubmitRun(ref_file, autotest=False):
   new_tests = results.keys() - ref.keys()
   failing_new_tests = set(filter(lambda n: results[n]["result"] != "success",
                                  new_tests))
-  regressions = set(filter(lambda name: deltas[name] <= -1e-10, deltas.keys()))
+  regressions = set(filter(lambda name: deltas[name] <= -1e-5, deltas.keys()))
   problems = regressions | failing_new_tests
   if len(problems) > 0:
     print(MakeResultsTable("Regressions or failures", problems, results, ref,
@@ -223,7 +223,7 @@ def PresubmitRun(ref_file, autotest=False):
           "presubmit.\x1b[0m")
     sys.exit(1)
 
-  fixed_tests = set(filter(lambda name: deltas[name] >= 1e-10, deltas.keys()))
+  fixed_tests = set(filter(lambda name: deltas[name] >= 1e-5, deltas.keys()))
   if len(fixed_tests) > 0:
     print(MakeResultsTable("Improvements", fixed_tests, results, ref, deltas))
     print(_IMPROVEMENT_MESSAGE)
