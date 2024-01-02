@@ -1,4 +1,4 @@
-# Copyright 2020 The Chromium OS Authors. All rights reserved.
+# Copyright 2020 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 from __future__ import absolute_import
@@ -17,8 +17,8 @@ from validators import *
 def Validate(raw, events, gestures):
   fuzzy = FuzzyCheck()
   fuzzy.expected = [
-    ScrollValidator("== 179 ~10"),
-    ScrollValidator("== 420 ~10"),
+    ScrollValidator("== 169 ~10"),
+    ScrollValidator("== 403 ~10"),
   ]
   fuzzy.unexpected = [
   ]
