@@ -19,7 +19,7 @@ inside your chroot:
 
 ```sh
 (inside)
-$ cd ~/trunk/src/platform/touchpad-tests
+$ cd ~/chromiumos/src/platform/touchpad-tests
 $ sudo make setup-in-place
 ```
 
