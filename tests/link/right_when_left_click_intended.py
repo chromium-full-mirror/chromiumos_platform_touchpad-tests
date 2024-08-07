@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 from __future__ import absolute_import
@@ -23,6 +23,7 @@ def Validate(raw, events, gestures):
     ButtonUpValidator(1)
   ]
   fuzzy.unexpected = [
-    FlingStopValidator("<10")
+    FlingStopValidator("<10"),
+    MotionValidator("<1")
   ]
   return fuzzy.Check(gestures)

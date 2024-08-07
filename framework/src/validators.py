@@ -1,4 +1,4 @@
-# Copyright (c) 2012 The Chromium OS Authors. All rights reserved.
+# Copyright 2012 The ChromiumOS Authors
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 #
@@ -228,6 +228,9 @@ class AbstractAxisValidator(AbstractValidator):
 
   def Accept(self, event):
     return (event.type == self.event_type and
+            (self._merge or
+             not self._distance_check or
+             self._distance_check.Compare(event.distance)) and
             ((float(event.start) - self._end) < 0.1 or
              self._end <= 0.0 or
              self._merge))
