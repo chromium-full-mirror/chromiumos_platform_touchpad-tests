@@ -14,16 +14,16 @@ Python function which verifies the output and returns a test score.
 
 ## Setting up
 
-Assuming that you've followed the [developer guide], simply run the following
-inside your chroot:
+Assuming that you've followed the [developer guide], simply enter the SDK
+chroot using the `cros_sdk` command, then run the following inside:
 
 ```sh
 (inside)
-$ cd ~/chromiumos/src/platform/touchpad-tests
+$ cd /mnt/host/source/src/platform/touchpad-tests
 $ sudo make setup-in-place
 ```
 
-[developer guide]: https://chromium.googlesource.com/chromiumos/docs/+/HEAD/developer_guide.md
+[developer guide]: https://www.chromium.org/chromium-os/developer-library/guides/development/developer-guide/
 
 ## Running tests
 
